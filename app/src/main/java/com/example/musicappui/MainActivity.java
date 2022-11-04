@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
         //Set up viewPager
         adapter = new FragmentsCollectionAdapter(this);
         viewPager2.setAdapter(adapter);
+        viewPager2.setUserInputEnabled(false);
+        viewPager2.setOffscreenPageLimit(5);
         viewPager2.setPageTransformer(new ZoomOutPageTransformer());
         new TabLayoutMediator(tabLayout, viewPager2, (tab, position) -> {
             switch (position){
