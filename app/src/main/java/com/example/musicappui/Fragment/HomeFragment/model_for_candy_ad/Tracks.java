@@ -1,4 +1,4 @@
-package com.example.musicappui.Fragment.HomeFragment.model;
+package com.example.musicappui.Fragment.HomeFragment.model_for_candy_ad;
 
 public class Tracks {
     SongItem[] items;

@@ -1,37 +1,9 @@
-package com.example.musicappui.Fragment.HomeFragment;
+package com.example.musicappui.API;
 
-import android.util.Log;
-
-import com.example.musicappui.Fragment.HomeFragment.model.ResponseBody;
-import com.example.musicappui.Fragment.HomeFragment.model.SongItem;
-
-import java.util.ArrayList;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.GET;
-import retrofit2.http.Headers;
-import retrofit2.http.Query;
-
-interface Api {
-    /*String BASE_URL = "https://jsonplaceholder.typicode.com/";*/
-    String BASE_URL = "https://soundcloud-scraper.p.rapidapi.com/";
-    /*@GET("posts")*/
-
-
-
-    @Headers(
-            {
-                    "X-RapidAPI-Key: 4eaf7ff150msh5e6765b4d66afedp108270jsn0af9710bc796",
-                    "X-RapidAPI-Host: soundcloud-scraper.p.rapidapi.com"
-            })
-    @GET("v1/playlist/tracks")
-    Call<ResponseBody> getSongId(@Query("playlist") String playlist, @Query("limit") int limit);
-}
 
 public class RetrofitClient {
     private static RetrofitClient client = null;
@@ -57,13 +29,13 @@ public class RetrofitClient {
     }
 }
 
-class ApiCaller extends Thread {
+/*class ApiCaller extends Thread {
 
     public ArrayList<SongItem> songItems = new ArrayList<>();
 
     @Override
     public void run() {
-        Call<ResponseBody> call = RetrofitClient.getInstance().getApi().getSongId("https://soundcloud.com/edsheeran/sets/tour-edition-1", 10);
+        Call<ResponseBody> call = RetrofitClient.getInstance().getApi().getCandyAd("https://soundcloud.com/edsheeran/sets/tour-edition-1", 10);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -88,4 +60,4 @@ class ApiCaller extends Thread {
         return songItems;
     }
 
-}
+}*/

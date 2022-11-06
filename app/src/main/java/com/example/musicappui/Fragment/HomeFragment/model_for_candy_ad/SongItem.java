@@ -1,4 +1,4 @@
-package com.example.musicappui.Fragment.HomeFragment.model;
+package com.example.musicappui.Fragment.HomeFragment.model_for_candy_ad;
 
 import java.io.Serializable;
 
@@ -7,6 +7,9 @@ public class SongItem implements Serializable {
     private String title;
     private String permalink;
     private String artworkUrl;
+    private Publisher publisher;
+    private long durationMs;
+    private String durationText;
 
     public SongItem() {
     }
@@ -16,10 +19,11 @@ public class SongItem implements Serializable {
         this.artworkUrl = artworkUrl;
     }
 
-    public SongItem(long id, String title, String SC_link) {
-        this.id = id;
+    public SongItem(String title, String artworkUrl, Publisher publisher, String durationText) {
         this.title = title;
-        this.permalink = SC_link;
+        this.artworkUrl = artworkUrl;
+        this.publisher = publisher;
+        this.durationText = durationText;
     }
 
     public long getId() {
@@ -52,6 +56,30 @@ public class SongItem implements Serializable {
 
     public void setImageUrl(String imageUrl) {
         artworkUrl = imageUrl;
+    }
+
+    public Publisher getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
+    }
+
+    public long getDurationMs() {
+        return durationMs;
+    }
+
+    public void setDurationMs(long durationMs) {
+        this.durationMs = durationMs;
+    }
+
+    public String getDurationText() {
+        return durationText;
+    }
+
+    public void setDurationText(String durationText) {
+        this.durationText = durationText;
     }
 }
 

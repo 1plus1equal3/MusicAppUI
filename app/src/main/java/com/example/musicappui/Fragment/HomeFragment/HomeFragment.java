@@ -1,6 +1,5 @@
 package com.example.musicappui.Fragment.HomeFragment;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,53 +8,68 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
-import com.example.musicappui.Fragment.HomeFragment.model.ResponseBody;
-import com.example.musicappui.Fragment.HomeFragment.model.SongItem;
+import com.example.musicappui.Fragment.HomeFragment.model_for_candy_ad.ResponseBody;
+import com.example.musicappui.Fragment.HomeFragment.model_for_candy_ad.SongItem;
 import com.example.musicappui.R;
-
+import com.example.musicappui.API.RetrofitClient;
 import java.util.ArrayList;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class HomeFragment extends Fragment {
 
-    RecyclerView candyList;
-    ArrayList<SongItem> candies = new ArrayList<>();
-    CandyListAdapter candyListAdapter;
+    private static RecyclerView candyList;
 
-    @SuppressLint("NotifyDataSetChanged")
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    //Array contains song's info
+    public static ArrayList<SongItem> candies = new ArrayList<>();
 
-        Call<ResponseBody> call = RetrofitClient.getInstance().getApi().getSongId("https://soundcloud.com/edsheeran/sets/tour-edition-1", 10);
+    //Call API and set up main RecyclerView adapter
+    /*public void APICall() {
+        Call<ResponseBody> call = RetrofitClient.getInstance().getApi().getCandyAd("https://soundcloud.com/edsheeran/sets/tour-edition-1", 10);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 if (!response.isSuccessful()) return;
                 ResponseBody body = response.body();
                 Log.d("", "onResponse: " + body);
-                //Add all song id from api to String[] imageurl array!
+                //Add all song id from api to String[] UrlImage array!
                 for (int i = 0; i < 10; i++) {
-                    candies.add(i, new SongItem(body.getTracks().getItems()[i].getTitle(), body.getTracks().getItems()[i].getImageUrl()));
+                    if (body != null) {
+                        candies.add(i, new SongItem(body.getTracks().getItems()[i].getTitle(), body.getTracks().getItems()[i].getImageUrl()));
+                    }
                     Log.e("Image url of " + i + " song is: ", candies.get(i).getImageUrl());
                 }
+                candyListAdapter = new CandyListAdapter(getContext(), candies);
+                candyList.setAdapter(candyListAdapter);
+                candyList.setLayoutManager(new LinearLayoutManager(getContext()));
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 Log.e("Fail call: ", t.getMessage());
             }
         });
+    }*/
+
+    public static void AdapterSetUp(ArrayList<SongItem> items) {
+        candies = items;
+        CandyListAdapter candyListAdapter = new CandyListAdapter(candyList.getContext(), candies);
+        candyList.setAdapter(candyListAdapter);
+        candyList.setLayoutManager(new LinearLayoutManager(candyList.getContext()));
+    }
+
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        //API is only called 1 time during fragment creation
+        /*APICall();*/
         super.onCreate(savedInstanceState);
     }
 
@@ -69,24 +83,12 @@ public class HomeFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        //Doing some stuffs here
-        candyListAdapter = new CandyListAdapter(getContext(), candies);
-        candyList.setAdapter(candyListAdapter);
-        candyList.setLayoutManager(new LinearLayoutManager(getContext()));
         super.onViewCreated(view, savedInstanceState);
     }
 
-/*    @Override
-    public void onResume() {
-        candyFavorAdapter = candyListAdapter.getCandyFavorAdapter();
-        if (candyFavorAdapter != null) {
-            candyFavorAdapter.notifyDataSetChanged();
-        }
-        super.onResume();
-    }*/
 }
 
-//Adapter for list view
+//Adapter for main RecyclerView
 class CandyListAdapter extends RecyclerView.Adapter<CandyListAdapter.RowViewHolder> {
 
     /* private List<Candy> candyList = new ArrayList<>();*/
@@ -106,7 +108,7 @@ class CandyListAdapter extends RecyclerView.Adapter<CandyListAdapter.RowViewHold
 
     @Override
     public void onBindViewHolder(@NonNull RowViewHolder holder, int position) {
-        switch (position) {
+        /*switch (position) {
             case 0:
                 holder.candyBrand.setText("Favorite");
                 //Replace candies with favorite//artists//albums//saved
@@ -143,7 +145,45 @@ class CandyListAdapter extends RecyclerView.Adapter<CandyListAdapter.RowViewHold
                 candyLayout_3.setOrientation(RecyclerView.HORIZONTAL);
                 holder.candyAd.setLayoutManager(candyLayout_3);
                 break;
+        }*/
+
+        bindCandyAd(holder, position);
+
+    }
+
+    public void bindCandyAd(RowViewHolder holder, int position){
+        CandyFavorAdapter candyFavorAdapter;
+        String candyBrand;
+        switch (position){
+            case 0:
+                candyBrand  = "Favorites";
+                //Replace candies with favorite//artists//albums//saved
+                candyFavorAdapter = new CandyFavorAdapter(candies, context);
+                break;
+            case 1:
+                candyBrand  = "Artists";
+                //Replace candies with favorite//artists//albums//saved
+                candyFavorAdapter = new CandyFavorAdapter(candies, context);
+                break;
+            case 2:
+                candyBrand  = "Albums";
+                //Replace candies with favorite//artists//albums//saved
+                candyFavorAdapter = new CandyFavorAdapter(candies, context);
+                break;
+            case 3:
+                candyBrand  = "Saved";
+                //Replace candies with favorite//artists//albums//saved
+                candyFavorAdapter = new CandyFavorAdapter(candies, context);
+                break;
+            default:
+                candyBrand = null;
+                candyFavorAdapter = null;
         }
+        holder.candyBrand.setText(candyBrand);
+        holder.candyAd.setAdapter(candyFavorAdapter);
+        LinearLayoutManager candyLayout = new LinearLayoutManager(context);
+        candyLayout.setOrientation(RecyclerView.HORIZONTAL);
+        holder.candyAd.setLayoutManager(candyLayout);
     }
 
     @Override
@@ -151,16 +191,17 @@ class CandyListAdapter extends RecyclerView.Adapter<CandyListAdapter.RowViewHold
         return 4;
     }
 
-/*    public void submitData(List<Candy> list){
+/*public void submitData(List<Candy> list){
         candyList.clear();
         candyList.addAll(list);
         notifyDataSetChanged();
     }*/
 
-    class RowViewHolder extends RecyclerView.ViewHolder {
+    static class RowViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView candyBrand, seeAll;
-        private RecyclerView candyAd;
+        private final TextView candyBrand;
+        private final TextView seeAll;
+        private final RecyclerView candyAd;
 
         public RowViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -173,6 +214,7 @@ class CandyListAdapter extends RecyclerView.Adapter<CandyListAdapter.RowViewHold
 
 }
 
+//Sub RecyclerView Adapter
 class CandyFavorAdapter extends RecyclerView.Adapter<CandyFavorAdapter.ViewHolder> {
 
     private final ArrayList<SongItem> candies;
@@ -211,7 +253,11 @@ class CandyFavorAdapter extends RecyclerView.Adapter<CandyFavorAdapter.ViewHolde
             super(itemView);
             candyShell = itemView.findViewById(R.id.candy_shell);
             candyShellDescription = itemView.findViewById(R.id.candy_shell_description);
+/*
+            candyShell.setBackgroundResource(R.drawable.roundborder);
+*/
         }
     }
 
 }
+
