@@ -7,18 +7,19 @@
     android:layout_height="wrap_content">
 
     <ImageView
+        android:padding="10dp"
         android:id="@+id/candy_shell"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:contentDescription="Image for recyclerView item"
         />
 
     <TextView
         android:id="@+id/candy_shell_description"
-        android:layout_width="wrap_content"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:textAlignment="center"
-
+        android:textColor="@color/white"
         />
 
 </LinearLayout>
