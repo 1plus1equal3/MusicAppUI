@@ -1,27 +1,29 @@
 package com.example.musicappui;
 
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.viewpager2.widget.ViewPager2;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.viewpager2.widget.ViewPager2;
+
 import com.example.musicappui.API.RetrofitClient;
+import com.example.musicappui.CallbackInterface.HomeFragCallback;
+import com.example.musicappui.CallbackInterface.SongsFragCallback;
 import com.example.musicappui.Fragment.FragmentsCollectionAdapter;
-import com.example.musicappui.Fragment.HomeFragment.HomeFragment;
 import com.example.musicappui.Fragment.HomeFragment.model_for_candy_ad.ResponseBody;
 import com.example.musicappui.Fragment.HomeFragment.model_for_candy_ad.SongItem;
-import com.example.musicappui.Fragment.SongsFragment.CherriesNum;
-import com.example.musicappui.Fragment.SongsFragment.SongsFragment;
 import com.example.musicappui.Fragment.ZoomOutPageTransformer;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+
 import java.util.ArrayList;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -33,6 +35,20 @@ public class MainActivity extends AppCompatActivity {
     FragmentsCollectionAdapter adapter;
     static ArrayList<SongItem> items = new ArrayList<>();
 
+    //Instance for Callback Interface
+    HomeFragCallback homeFragCallback;
+    SongsFragCallback songsFragCallback;
+
+    //Setter method for Callback
+    public void setHomeFragAdapterSetUp(HomeFragCallback homeFragCallback) {
+        this.homeFragCallback = homeFragCallback;
+    }
+
+    public void setSongsFragCallback(SongsFragCallback songsFragCallback) {
+        this.songsFragCallback = songsFragCallback;
+    }
+
+    //MainActivity methods
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager2.setOffscreenPageLimit(5);
         viewPager2.setPageTransformer(new ZoomOutPageTransformer());
         new TabLayoutMediator(tabLayout, viewPager2, (tab, position) -> {
-            switch (position){
+            switch (position) {
                 case 0:
                     tab.setText("Home");
                     break;
@@ -89,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if(id == R.id.search){
+        if (id == R.id.search) {
             //Do search things here
             Toast.makeText(getApplicationContext(), "Search something...", Toast.LENGTH_SHORT).show();
         }
@@ -113,9 +129,9 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("Song: ", items.get(i).getTitle());
                     }
                 }
-                HomeFragment.AdapterSetUp(items);
-                SongsFragment.AdapterSetUp(items);
-
+                homeFragCallback.AdapterSetUp(items);
+                songsFragCallback.cherries(items.size());
+                songsFragCallback.AdapterSetUp(items);
             }
 
             @Override
