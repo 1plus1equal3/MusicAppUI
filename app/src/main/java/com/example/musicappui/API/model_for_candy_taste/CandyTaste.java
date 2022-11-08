@@ -1,4 +1,4 @@
-package com.example.musicappui.Fragment.HomeFragment.model_for_candy_taste;
+package com.example.musicappui.API.model_for_candy_taste;
 
 public class CandyTaste {
     private String url;

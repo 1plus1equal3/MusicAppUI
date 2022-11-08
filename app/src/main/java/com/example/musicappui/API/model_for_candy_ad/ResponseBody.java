@@ -1,4 +1,4 @@
-package com.example.musicappui.Fragment.HomeFragment.model_for_candy_ad;
+package com.example.musicappui.API.model_for_candy_ad;
 
 import com.google.gson.annotations.SerializedName;
 

@@ -13,11 +13,12 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.musicappui.API.RetrofitClient;
+import com.example.musicappui.CallbackInterface.ArtistsFragCallback;
 import com.example.musicappui.CallbackInterface.HomeFragCallback;
 import com.example.musicappui.CallbackInterface.SongsFragCallback;
 import com.example.musicappui.Fragment.FragmentsCollectionAdapter;
-import com.example.musicappui.Fragment.HomeFragment.model_for_candy_ad.ResponseBody;
-import com.example.musicappui.Fragment.HomeFragment.model_for_candy_ad.SongItem;
+import com.example.musicappui.API.model_for_candy_ad.ResponseBody;
+import com.example.musicappui.API.model_for_candy_ad.SongItem;
 import com.example.musicappui.Fragment.ZoomOutPageTransformer;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -33,11 +34,11 @@ public class MainActivity extends AppCompatActivity {
     ViewPager2 viewPager2;
     TabLayout tabLayout;
     FragmentsCollectionAdapter adapter;
-    static ArrayList<SongItem> items = new ArrayList<>();
 
     //Instance for Callback Interface
     HomeFragCallback homeFragCallback;
     SongsFragCallback songsFragCallback;
+    ArtistsFragCallback artistsFragCallback;
 
     //Setter method for Callback
     public void setHomeFragAdapterSetUp(HomeFragCallback homeFragCallback) {
@@ -46,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void setSongsFragCallback(SongsFragCallback songsFragCallback) {
         this.songsFragCallback = songsFragCallback;
+    }
+
+    public void setArtistsFragCallback(ArtistsFragCallback artistsFragCallback) {
+        this.artistsFragCallback = artistsFragCallback;
     }
 
     //MainActivity methods
@@ -114,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Call API and set up main RecyclerView adapter
     public void APICall() {
+        ArrayList<SongItem> items = new ArrayList<>();
         Call<ResponseBody> call = RetrofitClient.getInstance().getApi().getCandyAd("https://soundcloud.com/edsheeran/sets/tour-edition-1", 10);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -132,6 +138,40 @@ public class MainActivity extends AppCompatActivity {
                 homeFragCallback.AdapterSetUp(items);
                 songsFragCallback.cherries(items.size());
                 songsFragCallback.AdapterSetUp(items);
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                Log.e("Fail call: ", t.getMessage());
+            }
+
+
+        });
+    }
+
+    //API call for artists and artist's images
+    public void APICallForArtist() {
+        Log.e("Artists: ", "Get some artists");
+        ArrayList<SongItem> items = new ArrayList<>();
+        Call<ResponseBody> call = RetrofitClient.getInstance()
+                .getApi().getCandyAd("https://soundcloud.com/c-minh-446017979/sets/us-uk", 20);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                if(!response.isSuccessful()) return;
+                ResponseBody body = response.body();
+                Log.d("", "onResponse: " + body);
+                //Add all song id from api to String[] UrlImage array!
+                for (int i = 0; i < 20; i++) {
+                    if (body != null) {
+                        items.add(i, new SongItem(body.getTracks().getItems()[i].getTitle(), body.getTracks().getItems()[i].getImageUrl(),
+                                body.getTracks().getItems()[i].getPublisher(), body.getTracks().getItems()[i].getDurationText()));
+                        Log.d("Song: ", items.get(i).getTitle());
+                    }
+                }
+                artistsFragCallback.cakes(items.size());
+                artistsFragCallback.AdapterSetUp(items);
+
             }
 
             @Override

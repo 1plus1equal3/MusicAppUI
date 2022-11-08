@@ -1,7 +1,7 @@
 package com.example.musicappui.API;
 
-import com.example.musicappui.Fragment.HomeFragment.model_for_candy_ad.ResponseBody;
-import com.example.musicappui.Fragment.HomeFragment.model_for_candy_taste.Candy;
+import com.example.musicappui.API.model_for_candy_ad.ResponseBody;
+import com.example.musicappui.API.model_for_candy_taste.Candy;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

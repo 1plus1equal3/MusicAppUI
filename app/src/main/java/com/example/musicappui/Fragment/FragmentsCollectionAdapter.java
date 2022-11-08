@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
+
+import com.example.musicappui.Fragment.ArtistsFragment.ArtistsFragment;
 import com.example.musicappui.Fragment.HomeFragment.HomeFragment;
 import com.example.musicappui.Fragment.SongsFragment.SongsFragment;
 

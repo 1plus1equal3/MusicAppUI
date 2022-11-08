@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.musicappui.CallbackInterface.HomeFragCallback;
-import com.example.musicappui.Fragment.HomeFragment.model_for_candy_ad.SongItem;
+import com.example.musicappui.API.model_for_candy_ad.SongItem;
 import com.example.musicappui.MainActivity;
 import com.example.musicappui.R;
 
