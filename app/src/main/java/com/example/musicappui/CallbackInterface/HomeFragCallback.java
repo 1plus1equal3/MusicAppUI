@@ -1,9 +1,9 @@
 package com.example.musicappui.CallbackInterface;
 
-import com.example.musicappui.API.model_for_candy_ad.SongItem;
+import com.example.musicappui.API.model_for_candy_ad.SongRow;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public interface HomeFragCallback {
-    void AdapterSetUp(ArrayList<SongItem> items);
+    void onAdapterSetUp(List<SongRow> items);
 }

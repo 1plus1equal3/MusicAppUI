@@ -1,6 +1,5 @@
 package com.example.musicappui.Fragment.HomeFragment;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,23 +11,24 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.musicappui.CallbackInterface.HomeFragCallback;
 import com.example.musicappui.API.model_for_candy_ad.SongItem;
+import com.example.musicappui.API.model_for_candy_ad.SongRow;
+import com.example.musicappui.API.model_for_candy_ad.SongRowViewType;
+import com.example.musicappui.CallbackInterface.HomeFragCallback;
 import com.example.musicappui.MainActivity;
 import com.example.musicappui.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class HomeFragment extends Fragment implements HomeFragCallback {
 
-    private RecyclerView candyList;
-
     //Array contains song's info
-    public ArrayList<SongItem> candies = new ArrayList<>();
+    private RecyclerView candyList;
+    private CandyListAdapter candyListAdapter;
 
     //Fragment methods
     @Override
@@ -51,80 +51,61 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-    }
 
-//CallBack override methods
-    @Override
-    public void AdapterSetUp(ArrayList<SongItem> items) {
-        candies = items;
-        CandyListAdapter candyListAdapter = new CandyListAdapter(candyList.getContext(), candies);
+        candyListAdapter = new CandyListAdapter();
         candyList.setAdapter(candyListAdapter);
-        candyList.setLayoutManager(new LinearLayoutManager(candyList.getContext()));
+        candyList.setHasFixedSize(true);
     }
 
+    //CallBack override methods
+    @Override
+    public void onAdapterSetUp(List<SongRow> items) {
+        candyListAdapter.setDataList(items);
+    }
 }
 
 //Adapter for main RecyclerView
-class CandyListAdapter extends RecyclerView.Adapter<CandyListAdapter.RowViewHolder> {
+class CandyListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     /* private List<Candy> candyList = new ArrayList<>();*/
-    private final Context context;
-    private final ArrayList<SongItem> candies;
+    private final ArrayList<SongRow> candies = new ArrayList<>();
 
-    public CandyListAdapter(Context context, ArrayList<SongItem> candies) {
-        this.context = context;
-        this.candies = candies;
+    public CandyListAdapter() {
     }
 
     @NonNull
     @Override
-    public RowViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new RowViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.candy_layout, parent, false));
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (SongRowViewType.values()[viewType] == SongRowViewType.CIRCLE) {
+            return new CircleViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.candy_circle_layout, parent, false));
+        } else {
+            return new RowViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.candy_layout, parent, false));
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RowViewHolder holder, int position) {
-        bindCandyAd(holder, position);
-    }
-
-    public void bindCandyAd(RowViewHolder holder, int position) {
-        CandyFavorAdapter candyFavorAdapter;
-        String candyBrand;
-        switch (position) {
-            case 0:
-                candyBrand = "Favorites";
-                //Replace candies with favorite//artists//albums//saved
-                candyFavorAdapter = new CandyFavorAdapter(candies, context);
-                break;
-            case 1:
-                candyBrand = "Artists";
-                //Replace candies with favorite//artists//albums//saved
-                candyFavorAdapter = new CandyFavorAdapter(candies, context);
-                break;
-            case 2:
-                candyBrand = "Albums";
-                //Replace candies with favorite//artists//albums//saved
-                candyFavorAdapter = new CandyFavorAdapter(candies, context);
-                break;
-            case 3:
-                candyBrand = "Saved";
-                //Replace candies with favorite//artists//albums//saved
-                candyFavorAdapter = new CandyFavorAdapter(candies, context);
-                break;
-            default:
-                candyBrand = null;
-                candyFavorAdapter = null;
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof RowViewHolder) {
+            ((RowViewHolder) holder).bindCandyAd(candies.get(position));
+        } else if (holder instanceof CircleViewHolder) {
+            ((CircleViewHolder) holder).bindCandyAd(candies.get(position));
         }
-        holder.candyBrand.setText(candyBrand);
-        holder.candyAd.setAdapter(candyFavorAdapter);
-        LinearLayoutManager candyLayout = new LinearLayoutManager(context);
-        candyLayout.setOrientation(RecyclerView.HORIZONTAL);
-        holder.candyAd.setLayoutManager(candyLayout);
     }
 
     @Override
     public int getItemCount() {
-        return 4;
+        return candies.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return candies.get(position).getViewType().ordinal();
+    }
+
+    public void setDataList(List<SongRow> list) {
+        candies.clear();
+        candies.addAll(list);
+        notifyDataSetChanged();
     }
 
     static class RowViewHolder extends RecyclerView.ViewHolder {
@@ -132,6 +113,7 @@ class CandyListAdapter extends RecyclerView.Adapter<CandyListAdapter.RowViewHold
         private final TextView candyBrand;
         private final TextView seeAll;
         private final RecyclerView candyAd;
+        CandyFavorAdapter candyFavorAdapter;
 
         public RowViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -140,19 +122,42 @@ class CandyListAdapter extends RecyclerView.Adapter<CandyListAdapter.RowViewHold
             seeAll = itemView.findViewById(R.id.see_all);
         }
 
+        public void bindCandyAd(SongRow row) {
+            candyBrand.setText(row.getTitle());
+            candyFavorAdapter = new CandyFavorAdapter(row.getSongItems());
+            candyAd.setAdapter(candyFavorAdapter);
+        }
     }
 
+    static class CircleViewHolder extends RecyclerView.ViewHolder {
+
+        private final TextView candyBrand;
+        private final TextView seeAll;
+        private final RecyclerView candyAd;
+        CandyFavorAdapter candyFavorAdapter;
+
+        public CircleViewHolder(@NonNull View itemView) {
+            super(itemView);
+            candyBrand = itemView.findViewById(R.id.candy_brand);
+            candyAd = itemView.findViewById(R.id.recyclerView);
+            seeAll = itemView.findViewById(R.id.see_all);
+        }
+
+        public void bindCandyAd(SongRow row) {
+            candyBrand.setText(row.getTitle());
+            candyFavorAdapter = new CandyFavorAdapter(row.getSongItems());
+            candyAd.setAdapter(candyFavorAdapter);
+        }
+    }
 }
 
 //Sub RecyclerView Adapter
 class CandyFavorAdapter extends RecyclerView.Adapter<CandyFavorAdapter.ViewHolder> {
 
-    private final ArrayList<SongItem> candies;
-    private final Context context;
+    private final List<SongItem> candies;
 
-    public CandyFavorAdapter(ArrayList<SongItem> candies, Context context) {
+    public CandyFavorAdapter(List<SongItem> candies) {
         this.candies = candies;
-        this.context = context;
     }
 
     @NonNull
@@ -165,13 +170,18 @@ class CandyFavorAdapter extends RecyclerView.Adapter<CandyFavorAdapter.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull CandyFavorAdapter.ViewHolder holder, int position) {
         Log.d("Image: ", "Loaded");
-        Glide.with(context).load(candies.get(position).getImageUrl()).into(holder.candyShell);
+        Glide.with(holder.itemView.getContext()).load(candies.get(position).getImageUrl()).circleCrop().into(holder.candyShell);
         holder.candyShellDescription.setText(candies.get(position).getTitle());
     }
 
     @Override
     public int getItemCount() {
         return candies.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return super.getItemViewType(position);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

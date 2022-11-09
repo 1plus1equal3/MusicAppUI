@@ -17,8 +17,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.musicappui.CallbackInterface.SongsFragCallback;
 import com.example.musicappui.API.model_for_candy_ad.SongItem;
+import com.example.musicappui.CallbackInterface.SongsFragCallback;
 import com.example.musicappui.MainActivity;
 import com.example.musicappui.R;
 
@@ -26,10 +26,10 @@ import java.util.ArrayList;
 
 public class SongsFragment extends Fragment implements SongsFragCallback {
 
-    private RecyclerView cherryList;
     Spinner sortCherry;
     TextView cherryNum;
     ArrayList<SongItem> cherries;
+    private RecyclerView cherryList;
 
     //Fragment methods
     @Override
@@ -116,6 +116,11 @@ class CherryListAdapter extends RecyclerView.Adapter<CherryListAdapter.CherryVie
             cherryName = itemView.findViewById(R.id.cherry_name);
             cherryArtist = itemView.findViewById(R.id.cherry_artist);
             cherryDuration = itemView.findViewById(R.id.cherry_duration);
+
+            cherryName.setOnLongClickListener(v -> {
+                cherryName.setSelected(true);
+                return true;
+            });
         }
     }
 }

@@ -4,8 +4,8 @@
     android:id="@+id/cherry_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="5dp"
-    android:background="@color/black">
+    android:background="@color/black"
+    android:paddingBottom="5dp">
 
     <ImageView
         android:id="@+id/cherry_image"
@@ -17,9 +17,10 @@
 
     <TextView
         android:id="@+id/cherry_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
+        android:ellipsize="marquee"
         android:hint="Song name"
         android:padding="10dp"
         android:singleLine="true"
@@ -27,6 +28,8 @@
         android:textColorHint="@color/white"
         android:textSize="22sp"
         android:textStyle="bold"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/cherry_image"
         app:layout_constraintTop_toTopOf="parent" />
 

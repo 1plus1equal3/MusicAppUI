@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -13,6 +15,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.musicappui.API.RetrofitClient;
+import com.example.musicappui.API.model_for_candy_ad.SongRow;
+import com.example.musicappui.API.model_for_candy_ad.SongRowViewType;
 import com.example.musicappui.CallbackInterface.ArtistsFragCallback;
 import com.example.musicappui.CallbackInterface.HomeFragCallback;
 import com.example.musicappui.CallbackInterface.SongsFragCallback;
@@ -24,6 +28,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -39,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     HomeFragCallback homeFragCallback;
     SongsFragCallback songsFragCallback;
     ArtistsFragCallback artistsFragCallback;
+    private ProgressBar progressBar;
 
     //Setter method for Callback
     public void setHomeFragAdapterSetUp(HomeFragCallback homeFragCallback) {
@@ -58,12 +64,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //Call API
-        APICall();
         //Get view's ids
         Toolbar toolbar = findViewById(R.id.toolbar);
         viewPager2 = findViewById(R.id.vp2);
         tabLayout = findViewById(R.id.tab);
+        progressBar = findViewById(R.id.loading);
 
         //Set up toolbar
         toolbar.setTitle("  A music app");
@@ -99,6 +104,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }).attach();
 
+        //Call API
+        APICall();
     }
 
     @Override
@@ -119,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Call API and set up main RecyclerView adapter
     public void APICall() {
+        progressBar.setVisibility(View.VISIBLE);
         ArrayList<SongItem> items = new ArrayList<>();
         Call<ResponseBody> call = RetrofitClient.getInstance().getApi().getCandyAd("https://soundcloud.com/edsheeran/sets/tour-edition-1", 10);
         call.enqueue(new Callback<ResponseBody>() {
@@ -128,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
                 ResponseBody body = response.body();
                 Log.d("", "onResponse: " + body);
                 //Add all song id from api to String[] UrlImage array!
+
                 for (int i = 0; i < 10; i++) {
                     if (body != null) {
                         items.add(i, new SongItem(body.getTracks().getItems()[i].getTitle(), body.getTracks().getItems()[i].getImageUrl(),
@@ -135,17 +144,27 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("Song: ", items.get(i).getTitle());
                     }
                 }
-                homeFragCallback.AdapterSetUp(items);
+
+                List<SongRow> rows = new ArrayList<>();
+                rows.add(new SongRow(0, "Favorites",items, SongRowViewType.CIRCLE));
+                rows.add(new SongRow(1, "Artists",items, SongRowViewType.RECTANGLE));
+                rows.add(new SongRow(2, "Albums",items, SongRowViewType.RECTANGLE));
+                rows.add(new SongRow(3, "Saved",items, SongRowViewType.RECTANGLE));
+
+                progressBar.setVisibility(View.GONE);
+
+                homeFragCallback.onAdapterSetUp(rows);
                 songsFragCallback.cherries(items.size());
                 songsFragCallback.AdapterSetUp(items);
+
+                APICallForArtist();
             }
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 Log.e("Fail call: ", t.getMessage());
+                progressBar.setVisibility(View.GONE);
             }
-
-
         });
     }
 

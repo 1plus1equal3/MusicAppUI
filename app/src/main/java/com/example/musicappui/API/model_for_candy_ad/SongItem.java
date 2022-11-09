@@ -11,8 +11,10 @@ public class SongItem implements Serializable {
     private long durationMs;
     private String durationText;
 
+
     public SongItem() {
     }
+
 
     public SongItem(String title, String artworkUrl) {
         this.title = title;
@@ -82,4 +84,3 @@ public class SongItem implements Serializable {
         this.durationText = durationText;
     }
 }
-
