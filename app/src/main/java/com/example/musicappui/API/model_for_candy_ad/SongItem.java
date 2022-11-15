@@ -21,11 +21,12 @@ public class SongItem implements Serializable {
         this.artworkUrl = artworkUrl;
     }
 
-    public SongItem(String title, String artworkUrl, Publisher publisher, String durationText) {
+    public SongItem(String title, String artworkUrl, Publisher publisher, String durationText, long id) {
         this.title = title;
         this.artworkUrl = artworkUrl;
         this.publisher = publisher;
         this.durationText = durationText;
+        this.id = id;
     }
 
     public long getId() {

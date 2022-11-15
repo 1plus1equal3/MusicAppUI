@@ -7,5 +7,5 @@ import java.util.ArrayList;
 public interface ArtistsFragCallback {
     void cakes(int num);
 
-    void AdapterSetUp(ArrayList<SongItem> items);
+    void onAdapterSetUp(ArrayList<SongItem> items);
 }

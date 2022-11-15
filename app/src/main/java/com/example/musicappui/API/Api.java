@@ -16,12 +16,17 @@ public interface Api {
 
     @Headers(
             {
-                    "X-RapidAPI-Key: 48352b35dbmsh80a93906ccfc711p1e4f34jsn6615bf524a06",
+                    "X-RapidAPI-Key: 83f98e746dmsh7ddcec255f0585bp18946cjsnd85c2b0876fc",
                     "X-RapidAPI-Host: soundcloud-scraper.p.rapidapi.com"
             })
     @GET("v1/playlist/tracks")
     Call<ResponseBody> getCandyAd(@Query("playlist") String playlist, @Query("limit") int limit);
 
+    @Headers(
+            {
+                    "X-RapidAPI-Key: 83f98e746dmsh7ddcec255f0585bp18946cjsnd85c2b0876fc",
+                    "X-RapidAPI-Host: soundcloud-scraper.p.rapidapi.com"
+            })
     @GET("v1/track/metadata")
     Call<Candy> getCandyTaste(@Query("track") long id);
 

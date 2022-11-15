@@ -65,7 +65,7 @@ public class SongsFragment extends Fragment implements SongsFragCallback {
     }
 
     @Override
-    public void AdapterSetUp(ArrayList<SongItem> items) {
+    public void onAdapterSetUp(ArrayList<SongItem> items) {
         cherries = items;
         Log.e("SongFragment: ", cherries.get(0).getPublisher().getArtist());
         CherryListAdapter cherryListAdapter = new CherryListAdapter(cherryList.getContext(), cherries);
@@ -116,7 +116,6 @@ class CherryListAdapter extends RecyclerView.Adapter<CherryListAdapter.CherryVie
             cherryName = itemView.findViewById(R.id.cherry_name);
             cherryArtist = itemView.findViewById(R.id.cherry_artist);
             cherryDuration = itemView.findViewById(R.id.cherry_duration);
-
             cherryName.setOnLongClickListener(v -> {
                 cherryName.setSelected(true);
                 return true;

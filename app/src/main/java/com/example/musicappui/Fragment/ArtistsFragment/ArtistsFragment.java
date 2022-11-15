@@ -1,6 +1,5 @@
 package com.example.musicappui.Fragment.ArtistsFragment;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,9 +59,9 @@ public class ArtistsFragment extends Fragment implements ArtistsFragCallback {
     }
 
     @Override
-    public void AdapterSetUp(ArrayList<SongItem> items) {
+    public void onAdapterSetUp(ArrayList<SongItem> items) {
         cakes = items;
-        CakeListAdapter cakeListAdapter = new CakeListAdapter(getContext(), cakes);
+        CakeListAdapter cakeListAdapter = new CakeListAdapter(cakes);
         cakeList.setAdapter(cakeListAdapter);
         cakeList.setLayoutManager(new GridLayoutManager(cakeList.getContext(), 2));
     }
@@ -71,23 +70,21 @@ public class ArtistsFragment extends Fragment implements ArtistsFragCallback {
 
 class CakeListAdapter extends RecyclerView.Adapter<CakeListAdapter.CakeViewHolder>{
 
-    private final Context context;
     private final ArrayList<SongItem> cakes;
 
-    public CakeListAdapter(Context context, ArrayList<SongItem> cakes) {
-        this.context = context;
+    public CakeListAdapter(ArrayList<SongItem> cakes) {
         this.cakes = cakes;
     }
 
     @NonNull
     @Override
     public CakeListAdapter.CakeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new CakeListAdapter.CakeViewHolder(LayoutInflater.from(context).inflate(R.layout.cake_favor_item, parent, false));
+        return new CakeListAdapter.CakeViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cake_favor_item, parent, false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull CakeListAdapter.CakeViewHolder holder, int position) {
-        Glide.with(context).load(cakes.get(position).getImageUrl()).into(holder.cakeImage);
+        Glide.with(holder.itemView.getContext()).load(cakes.get(position).getImageUrl()).into(holder.cakeImage);
         holder.cakeName.setText(cakes.get(position).getTitle());
     }
 
