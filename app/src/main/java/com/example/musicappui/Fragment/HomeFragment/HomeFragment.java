@@ -34,18 +34,19 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
     private CandyListAdapter candyListAdapter;
     ExoPlayer player;
     PlayerControlView controller;
+    MainActivity activity;
 
 
     //Fragment methods
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        MainActivity mainActivity = (MainActivity) getActivity();
-        if (mainActivity != null) {
-            mainActivity.setHomeFragAdapterSetUp(this);
+        activity = (MainActivity) getActivity();
+        if (activity != null) {
+            activity.setHomeFragAdapterSetUp(this);
         }
-        if (mainActivity != null) {
-            player = mainActivity.getPlayer();
-            controller = mainActivity.getController();
+        if (activity != null) {
+            player = activity.getPlayer();
+            controller = activity.getController();
         }
         super.onCreate(savedInstanceState);
     }
@@ -188,7 +189,9 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
             //Prepare song here
             holder.candyItem.setOnClickListener(v -> {
                 Log.e("Id", String.valueOf(candies.get(position).getId()));
-                ((MainActivity) getActivity()).prepareSongFromUrl(candies.get(position).getId());
+                if(activity!=null) {
+                    activity.prepareSongFromUrl(candies.get(position).getId());
+                }
             });
 
         }

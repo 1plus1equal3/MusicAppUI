@@ -38,8 +38,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:indeterminate="true"
-        android:visibility="gone"
         android:indeterminateTint="@color/red"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -47,10 +47,21 @@
 
     <com.google.android.exoplayer2.ui.PlayerControlView
         android:id="@+id/controller"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:show_timeout="0"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:show_shuffle_button="false"
+        app:show_timeout="0"
+        tools:visibility="visible" />
+
+    <include
+        android:id="@+id/ui_layout"
+        layout="@layout/ui_music_player"
+        android:visibility="gone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

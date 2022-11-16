@@ -7,12 +7,17 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.musicappui.API.RetrofitClient;
@@ -46,6 +51,14 @@ public class MainActivity extends AppCompatActivity {
     FragmentsCollectionAdapter adapter;
     ExoPlayer player;
     PlayerControlView controller;
+
+    //UI player Views
+    LinearLayout controllerClick;
+    ConstraintLayout uiLayout;
+    ImageButton uiBackBtn, play_pauseBtn, playerBackBtn, playerForwardBtn, playerSkipPreviousBtn, playerSkipNextBtn;
+    ImageView songImage;
+    TextView songName, artistName, timeStartProgress, timeEndProgress;
+    ProgressBar songProgress;
 
     public ExoPlayer getPlayer() {
         return player;
@@ -123,9 +136,11 @@ public class MainActivity extends AppCompatActivity {
         //Call API
         APICall();
 
+        //Set up UI player
+        setUpMusicPlayerUI();
+
         //Set up player and controller
         playerSetUp();
-
     }
 
     @Override
@@ -225,11 +240,23 @@ public class MainActivity extends AppCompatActivity {
     public void playerSetUp() {
         player = new ExoPlayer.Builder(this).build();
         controller.setPlayer(player);
+        controller.setOnClickListener(v -> {
+            Log.e("UI player", "Clicked");
+            uiLayout.setVisibility(View.VISIBLE);
+            controller.hide();
+        });
+//        controllerClick.setOnClickListener(v -> {
+//            Log.e("UI player", "Clicked");
+//            uiLayout.setVisibility(View.VISIBLE);
+//            controller.show();
+//        });
+        controller.setProgressUpdateListener((position, bufferedPosition) -> {
+
+        });
     }
 
     //Prepare song for player
     public void prepareSongFromUrl(long id) {
-        Log.e("Prepare Song", "Work!");
         //Call api to retrieve song url using its id
         Call<Candy> call = RetrofitClient.getInstance().getApi().getCandyTaste(id);
         call.enqueue(new Callback<Candy>() {
@@ -247,6 +274,7 @@ public class MainActivity extends AppCompatActivity {
                 MediaItem item = MediaItem.fromUri(uri);
                 player.setMediaItem(item);
                 player.prepare();
+                controller.show();
                 player.setPlayWhenReady(true);
                 player.getPlaybackState();
             }
@@ -256,6 +284,31 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("Get song", "Fail!");
                 Log.e("Error", t.getMessage());
             }
+        });
+    }
+
+    public void setUpMusicPlayerUI(){
+        //Bind view's ids
+        uiLayout = findViewById(R.id.ui_layout);
+        uiBackBtn = findViewById(R.id.ui_back_btn);
+        play_pauseBtn = findViewById(R.id.play_pause_btn);
+        playerBackBtn = findViewById(R.id.back_btn);
+        playerForwardBtn = findViewById(R.id.forward_btn);
+        playerSkipPreviousBtn = findViewById(R.id.skip_previous_btn);
+        playerSkipNextBtn = findViewById(R.id.skip_next_btn);
+        songImage = findViewById(R.id.song_image);
+        songName = findViewById(R.id.song_name);
+        artistName = findViewById(R.id.artist_name);
+        timeStartProgress = findViewById(R.id.time_start_progress);
+        timeEndProgress = findViewById(R.id.time_end_progress);
+        songProgress = findViewById(R.id.progressBar);
+/*
+        controllerClick = findViewById(R.id.controller_click);
+*/
+        //UI back Btn
+        uiBackBtn.setOnClickListener(v -> {
+            controller.show();
+            uiLayout.setVisibility(View.GONE);
         });
     }
 }
