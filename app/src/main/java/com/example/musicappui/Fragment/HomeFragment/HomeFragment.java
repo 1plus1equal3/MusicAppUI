@@ -1,6 +1,7 @@
 package com.example.musicappui.Fragment.HomeFragment;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -190,7 +191,8 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
             holder.candyItem.setOnClickListener(v -> {
                 Log.e("Id", String.valueOf(candies.get(position).getId()));
                 if(activity!=null) {
-                    activity.prepareSongFromUrl(candies.get(position).getId());
+                    Handler handler = new Handler();
+                    handler.postDelayed(() -> activity.prepareSongFromUrl(candies.get(position).getId(), candies.get(position)), 1500);
                 }
             });
 

@@ -3,13 +3,13 @@ package com.example.musicappui;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,6 +20,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.bumptech.glide.Glide;
 import com.example.musicappui.API.RetrofitClient;
 import com.example.musicappui.API.model_for_candy_ad.ResponseBody;
 import com.example.musicappui.API.model_for_candy_ad.SongItem;
@@ -51,9 +52,11 @@ public class MainActivity extends AppCompatActivity {
     FragmentsCollectionAdapter adapter;
     ExoPlayer player;
     PlayerControlView controller;
+    Handler handler = new Handler();
+    Runnable runnable;
 
     //UI player Views
-    LinearLayout controllerClick;
+    /*LinearLayout controllerClick;*/
     ConstraintLayout uiLayout;
     ImageButton uiBackBtn, play_pauseBtn, playerBackBtn, playerForwardBtn, playerSkipPreviousBtn, playerSkipNextBtn;
     ImageView songImage;
@@ -159,6 +162,11 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
     //Call API and set up main RecyclerView adapter
     public void APICall() {
         progressBar.setVisibility(View.VISIBLE);
@@ -243,26 +251,22 @@ public class MainActivity extends AppCompatActivity {
         controller.setOnClickListener(v -> {
             Log.e("UI player", "Clicked");
             uiLayout.setVisibility(View.VISIBLE);
-            controller.hide();
         });
-//        controllerClick.setOnClickListener(v -> {
-//            Log.e("UI player", "Clicked");
-//            uiLayout.setVisibility(View.VISIBLE);
-//            controller.show();
-//        });
         controller.setProgressUpdateListener((position, bufferedPosition) -> {
 
         });
     }
 
     //Prepare song for player
-    public void prepareSongFromUrl(long id) {
+    public void prepareSongFromUrl(long id, SongItem song) {
         //Call api to retrieve song url using its id
         Call<Candy> call = RetrofitClient.getInstance().getApi().getCandyTaste(id);
-        call.enqueue(new Callback<Candy>() {
+        if(runnable!=null) handler.removeCallbacks(runnable);
+        runnable = () -> call.enqueue(new Callback<Candy>() {
             @Override
-            public void onResponse(@NonNull Call<Candy> call, @NonNull Response<Candy> response) {
+            public void onResponse(@NonNull Call<Candy> call1, @NonNull Response<Candy> response) {
                 if (!response.isSuccessful()) Log.e("Message", "No song was found!");
+                else Log.e("Message", "Response successfully");
                 Candy candy = response.body();
                 //Add url to mediaItem
                 String url = null;
@@ -270,21 +274,40 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("Url", candy.getCandyTastes()[0].getUrl());
                     url = candy.getCandyTastes()[0].getUrl();
                 }
+                //Set up song with MediaItem
                 Uri uri = Uri.parse(url);
                 MediaItem item = MediaItem.fromUri(uri);
-                player.setMediaItem(item);
+                //Add MediaItem to Exoplayer player
+                player.addMediaItem(item);
+                if(player.hasNextMediaItem()) {
+                    player.seekToNextMediaItem();
+                }
                 player.prepare();
                 controller.show();
                 player.setPlayWhenReady(true);
                 player.getPlaybackState();
+                //Set up UI player layout
+                getSongData(song);
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        controller.setProgressUpdateListener((position, bufferedPosition)
+                                -> songProgress.setProgress((int) position /(int) player.getDuration()));
+                        handler.postDelayed(this, 1000);
+                    }
+                }, 1000);
+
+
             }
 
             @Override
-            public void onFailure(@NonNull Call<Candy> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<Candy> call1, @NonNull Throwable t) {
                 Log.e("Get song", "Fail!");
                 Log.e("Error", t.getMessage());
             }
         });
+        handler.postDelayed(runnable, 2000);
     }
 
     public void setUpMusicPlayerUI(){
@@ -302,13 +325,17 @@ public class MainActivity extends AppCompatActivity {
         timeStartProgress = findViewById(R.id.time_start_progress);
         timeEndProgress = findViewById(R.id.time_end_progress);
         songProgress = findViewById(R.id.progressBar);
-/*
-        controllerClick = findViewById(R.id.controller_click);
-*/
+
         //UI back Btn
         uiBackBtn.setOnClickListener(v -> {
             controller.show();
             uiLayout.setVisibility(View.GONE);
         });
+    }
+
+    public void getSongData(SongItem song){
+        Glide.with(this).load(song.getImageUrl()).centerCrop().into(songImage);
+        songName.setText(song.getTitle());
+        artistName.setText(song.getPublisher().getArtist());
     }
 }

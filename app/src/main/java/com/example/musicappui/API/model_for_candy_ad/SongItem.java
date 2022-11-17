@@ -29,6 +29,15 @@ public class SongItem implements Serializable {
         this.id = id;
     }
 
+    public SongItem(String title, String artworkUrl, Publisher publisher, String durationText, long id, long durationMs) {
+        this.title = title;
+        this.artworkUrl = artworkUrl;
+        this.publisher = publisher;
+        this.durationText = durationText;
+        this.id = id;
+        this.durationMs = durationMs;
+    }
+
     public long getId() {
         return id;
     }

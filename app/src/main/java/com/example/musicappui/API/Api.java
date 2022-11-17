@@ -16,7 +16,7 @@ public interface Api {
 
     @Headers(
             {
-                    "X-RapidAPI-Key: 83f98e746dmsh7ddcec255f0585bp18946cjsnd85c2b0876fc",
+                    "X-RapidAPI-Key: 70a3427f36msh0218d959eaefacfp144c93jsn9aca26548970",
                     "X-RapidAPI-Host: soundcloud-scraper.p.rapidapi.com"
             })
     @GET("v1/playlist/tracks")
@@ -24,7 +24,7 @@ public interface Api {
 
     @Headers(
             {
-                    "X-RapidAPI-Key: 83f98e746dmsh7ddcec255f0585bp18946cjsnd85c2b0876fc",
+                    "X-RapidAPI-Key: 70a3427f36msh0218d959eaefacfp144c93jsn9aca26548970",
                     "X-RapidAPI-Host: soundcloud-scraper.p.rapidapi.com"
             })
     @GET("v1/track/metadata")
