@@ -252,9 +252,6 @@ public class MainActivity extends AppCompatActivity {
             Log.e("UI player", "Clicked");
             uiLayout.setVisibility(View.VISIBLE);
         });
-        controller.setProgressUpdateListener((position, bufferedPosition) -> {
-
-        });
     }
 
     //Prepare song for player
