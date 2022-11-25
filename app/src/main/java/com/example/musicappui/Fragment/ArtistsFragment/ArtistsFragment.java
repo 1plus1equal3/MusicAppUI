@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.musicappui.API.model_for_candy_ad.SongItem;
+import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track;
 import com.example.musicappui.CallbackInterface.ArtistsFragCallback;
 import com.example.musicappui.MainActivity;
 import com.example.musicappui.R;
@@ -25,7 +25,7 @@ public class ArtistsFragment extends Fragment implements ArtistsFragCallback {
     RecyclerView cakeList;
     Spinner sortCake;
     TextView cakeNum;
-    ArrayList<SongItem> cakes;
+    ArrayList<com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track> cakes;
 
     //Fragment methods
     @Override
@@ -59,7 +59,7 @@ public class ArtistsFragment extends Fragment implements ArtistsFragCallback {
     }
 
     @Override
-    public void onAdapterSetUp(ArrayList<SongItem> items) {
+    public void onAdapterSetUp(ArrayList<com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track> items) {
         cakes = items;
         CakeListAdapter cakeListAdapter = new CakeListAdapter(cakes);
         cakeList.setAdapter(cakeListAdapter);
@@ -70,9 +70,9 @@ public class ArtistsFragment extends Fragment implements ArtistsFragCallback {
 
 class CakeListAdapter extends RecyclerView.Adapter<CakeListAdapter.CakeViewHolder>{
 
-    private final ArrayList<SongItem> cakes;
+    private final ArrayList<Track> cakes;
 
-    public CakeListAdapter(ArrayList<SongItem> cakes) {
+    public CakeListAdapter(ArrayList<com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track> cakes) {
         this.cakes = cakes;
     }
 
@@ -84,8 +84,8 @@ class CakeListAdapter extends RecyclerView.Adapter<CakeListAdapter.CakeViewHolde
 
     @Override
     public void onBindViewHolder(@NonNull CakeListAdapter.CakeViewHolder holder, int position) {
-        Glide.with(holder.itemView.getContext()).load(cakes.get(position).getImageUrl()).into(holder.cakeImage);
-        holder.cakeName.setText(cakes.get(position).getTitle());
+        Glide.with(holder.itemView.getContext()).load(cakes.get(position).getAlbum().getImages()[0].getUrl()).into(holder.cakeImage);
+        holder.cakeName.setText(cakes.get(position).getName());
     }
 
     @Override

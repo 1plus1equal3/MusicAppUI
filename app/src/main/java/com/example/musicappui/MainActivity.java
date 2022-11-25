@@ -1,7 +1,11 @@
 package com.example.musicappui;
 
 
+import android.Manifest;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -15,18 +19,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
-import com.example.musicappui.API.RetrofitClient;
-import com.example.musicappui.API.model_for_candy_ad.ResponseBody;
-import com.example.musicappui.API.model_for_candy_ad.SongItem;
+import com.example.musicappui.API.ApiSpotify.ResponseForAccessToken;
+import com.example.musicappui.API.ApiSpotify.SpotifyClient_0;
+import com.example.musicappui.API.ApiSpotify.SpotifyClient_1;
+import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.RecommendSongs;
+import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track;
 import com.example.musicappui.API.model_for_candy_ad.SongRow;
 import com.example.musicappui.API.model_for_candy_ad.SongRowViewType;
-import com.example.musicappui.API.model_for_candy_taste.Candy;
 import com.example.musicappui.CallbackInterface.ArtistsFragCallback;
 import com.example.musicappui.CallbackInterface.HomeFragCallback;
 import com.example.musicappui.CallbackInterface.SongsFragCallback;
@@ -34,12 +42,14 @@ import com.example.musicappui.Fragment.FragmentsCollectionAdapter;
 import com.example.musicappui.Fragment.ZoomOutPageTransformer;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -52,16 +62,21 @@ public class MainActivity extends AppCompatActivity {
     FragmentsCollectionAdapter adapter;
     ExoPlayer player;
     PlayerControlView controller;
-    Handler handler = new Handler();
-    Runnable runnable;
+    ArrayList<Track> items = new ArrayList<>();
+    //Response for access token
+    ResponseForAccessToken accessTokenResponse;
 
     //UI player Views
-    /*LinearLayout controllerClick;*/
-    ConstraintLayout uiLayout;
+    /*LinearLayout controllerClick;*/ ConstraintLayout uiLayout;
     ImageButton uiBackBtn, play_pauseBtn, playerBackBtn, playerForwardBtn, playerSkipPreviousBtn, playerSkipNextBtn;
     ImageView songImage;
     TextView songName, artistName, timeStartProgress, timeEndProgress;
     ProgressBar songProgress;
+    //Instance for Callback Interface
+    HomeFragCallback homeFragCallback;
+    SongsFragCallback songsFragCallback;
+    ArtistsFragCallback artistsFragCallback;
+    private ProgressBar progressBar;
 
     public ExoPlayer getPlayer() {
         return player;
@@ -70,12 +85,6 @@ public class MainActivity extends AppCompatActivity {
     public PlayerControlView getController() {
         return controller;
     }
-
-    //Instance for Callback Interface
-    HomeFragCallback homeFragCallback;
-    SongsFragCallback songsFragCallback;
-    ArtistsFragCallback artistsFragCallback;
-    private ProgressBar progressBar;
 
     //Setter method for Callback
     public void setHomeFragAdapterSetUp(HomeFragCallback homeFragCallback) {
@@ -95,6 +104,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //Check permissions
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+            Log.d("Permission", "Granted");
+        else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+        }
+
         //Get view's ids
         Toolbar toolbar = findViewById(R.id.toolbar);
         viewPager2 = findViewById(R.id.vp2);
@@ -137,13 +154,22 @@ public class MainActivity extends AppCompatActivity {
         }).attach();
 
         //Call API
-        APICall();
+        getAccessToken();
 
         //Set up UI player
         setUpMusicPlayerUI();
 
         //Set up player and controller
         playerSetUp();
+    }
+
+    //Permission request result
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            Log.d("Permission", "Granted");
+        else Log.d("Permission", "Denied");
     }
 
     @Override
@@ -168,24 +194,59 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Call API and set up main RecyclerView adapter
+
+    //API call to get Access Token
+    public void getAccessToken() {
+        SharedPreferences preferences = getSharedPreferences("TokenInfo", MODE_PRIVATE);
+        Call<ResponseForAccessToken> call = SpotifyClient_0.getInstance().getApiSpotify().getAccessToken("client_credentials");
+        call.enqueue(new Callback<ResponseForAccessToken>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseForAccessToken> call, @NonNull Response<ResponseForAccessToken> response) {
+                if (!response.isSuccessful()) return;
+                accessTokenResponse = response.body();
+                if (accessTokenResponse != null) {
+                    Log.e("Access Token", accessTokenResponse.getAccess_token());
+                    Log.e("Token Type", accessTokenResponse.getToken_type());
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString("token", accessTokenResponse.getAccess_token());
+                    editor.putString("type", accessTokenResponse.getToken_type());
+                    editor.apply();
+                    APICall();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ResponseForAccessToken> call, @NonNull Throwable t) {
+                Log.d("Call", "Failed");
+            }
+        });
+    }
+
     public void APICall() {
         progressBar.setVisibility(View.VISIBLE);
-        ArrayList<SongItem> items = new ArrayList<>();
-        Call<ResponseBody> call = RetrofitClient.getInstance().getApi().getCandyAd("https://soundcloud.com/edsheeran/sets/tour-edition-1", 10);
-        call.enqueue(new Callback<ResponseBody>() {
+        ArrayList<Track> items = new ArrayList<>();
+        Call<RecommendSongs> call = SpotifyClient_1.getInstance(this).getApiSpotify().getTracks(20);
+        call.enqueue(new Callback<RecommendSongs>() {
             @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+            public void onResponse(@NonNull Call<RecommendSongs> call, @NonNull Response<RecommendSongs> response) {
                 if (!response.isSuccessful()) return;
-                ResponseBody body = response.body();
+                RecommendSongs body = response.body();
                 Log.d("", "onResponse: " + body);
                 //Add all song id from api to String[] UrlImage array!
 
-                for (int i = 0; i < 10; i++) {
+                for (int i = 0; i < 20; i++) {
                     if (body != null) {
-                        items.add(i, new SongItem(body.getTracks().getItems()[i].getTitle(), body.getTracks().getItems()[i].getImageUrl(),
-                                body.getTracks().getItems()[i].getPublisher(), body.getTracks().getItems()[i].getDurationText(),
-                                body.getTracks().getItems()[i].getId()));
-                        Log.d("Song: ", items.get(i).getTitle());
+                        Track track = body.getItems()[i].getTrack();
+                        items.add(i, new Track(
+                                track.getDuration_ms(),
+                                track.getId(),
+                                track.getName(),
+                                track.getUri(),
+                                track.getArtists(),
+                                track.getPreview_url(),
+                                track.getAlbum()
+                        ));
+                        Log.d("Song: ", items.get(i).getName());
                     }
                 }
 
@@ -204,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<RecommendSongs> call, @NonNull Throwable t) {
                 Log.e("Fail call: ", t.getMessage());
                 progressBar.setVisibility(View.GONE);
             }
@@ -214,22 +275,28 @@ public class MainActivity extends AppCompatActivity {
     //API call for artists and artist's images
     public void APICallForArtist() {
         Log.e("Artists: ", "Get some artists");
-        ArrayList<SongItem> items = new ArrayList<>();
-        Call<ResponseBody> call = RetrofitClient.getInstance()
-                .getApi().getCandyAd("https://soundcloud.com/c-minh-446017979/sets/us-uk", 20);
-        call.enqueue(new Callback<ResponseBody>() {
+        items = new ArrayList<>();
+        Call<RecommendSongs> call = SpotifyClient_1.getInstance(this).getApiSpotify().getTracks(20);
+        call.enqueue(new Callback<RecommendSongs>() {
             @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+            public void onResponse(@NonNull Call<RecommendSongs> call, @NonNull Response<RecommendSongs> response) {
                 if (!response.isSuccessful()) return;
-                ResponseBody body = response.body();
+                RecommendSongs body = response.body();
                 Log.d("", "onResponse: " + body);
                 //Add all song id from api to String[] UrlImage array!
                 for (int i = 0; i < 20; i++) {
                     if (body != null) {
-                        items.add(i, new SongItem(body.getTracks().getItems()[i].getTitle(), body.getTracks().getItems()[i].getImageUrl(),
-                                body.getTracks().getItems()[i].getPublisher(), body.getTracks().getItems()[i].getDurationText(),
-                                body.getTracks().getItems()[i].getId()));
-                        Log.d("Song: ", items.get(i).getTitle());
+                        Track track = body.getItems()[i].getTrack();
+                        items.add(i, new Track(
+                                track.getDuration_ms(),
+                                track.getId(),
+                                track.getName(),
+                                track.getUri(),
+                                track.getArtists(),
+                                track.getPreview_url(),
+                                track.getAlbum()
+                        ));
+                        Log.d("Song: ", items.get(i).getName());
                     }
                 }
                 artistsFragCallback.cakes(items.size());
@@ -238,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<RecommendSongs> call, @NonNull Throwable t) {
                 Log.e("Fail call: ", t.getMessage());
             }
         });
@@ -255,59 +322,111 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Prepare song for player
-    public void prepareSongFromUrl(long id, SongItem song) {
-        //Call api to retrieve song url using its id
-        Call<Candy> call = RetrofitClient.getInstance().getApi().getCandyTaste(id);
-        if(runnable!=null) handler.removeCallbacks(runnable);
-        runnable = () -> call.enqueue(new Callback<Candy>() {
+    public void prepareSongFromUrl(Track song) {
+        Uri uri;
+        MediaItem item;
+        if(song.getPreview_url()==null) return;
+        uri = Uri.parse(song.getPreview_url());
+        item = new MediaItem.Builder()
+                    .setUri(uri)
+                    .setMediaId(song.getId())
+                    .build();
+        //Add MediaItem to Exoplayer player
+        if(player.getMediaItemCount()<4) {
+            player.addMediaItem(item);
+            player.getMediaItemAt(player.getMediaItemCount() - 1);
+        }
+        else {
+            player.removeMediaItem(player.getCurrentMediaItemIndex()-3);
+            player.addMediaItem(item);
+            player.getMediaItemAt(player.getMediaItemCount() - 1);
+        }
+        player.prepare();
+        controller.show();
+
+        //Set up UI player layout
+        getSongData(song);
+
+        //Set max progress
+        player.addListener(new Player.Listener() {
+
             @Override
-            public void onResponse(@NonNull Call<Candy> call1, @NonNull Response<Candy> response) {
-                if (!response.isSuccessful()) Log.e("Message", "No song was found!");
-                else Log.e("Message", "Response successfully");
-                Candy candy = response.body();
-                //Add url to mediaItem
-                String url = null;
-                if (candy != null) {
-                    Log.e("Url", candy.getCandyTastes()[0].getUrl());
-                    url = candy.getCandyTastes()[0].getUrl();
+            public void onPlaybackStateChanged(int playbackState) {
+                if (playbackState == ExoPlayer.STATE_READY) {
+                    songProgress.setMax((int) player.getDuration() / 1000);
+                    Log.e("Song duration: ", String.valueOf(player.getDuration()));
                 }
-                //Set up song with MediaItem
-                Uri uri = Uri.parse(url);
-                MediaItem item = MediaItem.fromUri(uri);
-                //Add MediaItem to Exoplayer player
-                player.addMediaItem(item);
-                if(player.hasNextMediaItem()) {
-                    player.seekToNextMediaItem();
-                }
-                player.prepare();
-                controller.show();
-                player.setPlayWhenReady(true);
-                player.getPlaybackState();
-                //Set up UI player layout
-                getSongData(song);
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        controller.setProgressUpdateListener((position, bufferedPosition)
-                                -> songProgress.setProgress((int) position /(int) player.getDuration()));
-                        handler.postDelayed(this, 1000);
-                    }
-                }, 1000);
-
-
+                if (playbackState == ExoPlayer.STATE_ENDED)
+                    play_pauseBtn.setBackground(AppCompatResources.getDrawable(MainActivity.this, R.drawable.ic_baseline_play_circle_24));
             }
 
             @Override
-            public void onFailure(@NonNull Call<Candy> call1, @NonNull Throwable t) {
-                Log.e("Get song", "Fail!");
-                Log.e("Error", t.getMessage());
+            public void onIsPlayingChanged(boolean isPlaying) {
+                if (isPlaying)
+                    play_pauseBtn.setBackground(AppCompatResources.getDrawable(MainActivity.this, R.drawable.ic_baseline_pause_circle_24));
+                else
+                    play_pauseBtn.setBackground(AppCompatResources.getDrawable(MainActivity.this, R.drawable.ic_baseline_play_circle_24));
+            }
+
+            @Override
+            public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+                if (mediaItem != null) {
+                    getSongData(findSong(mediaItem.mediaId));
+                }
+                Player.Listener.super.onMediaItemTransition(mediaItem, reason);
             }
         });
-        handler.postDelayed(runnable, 2000);
+
+        //Progress update
+        Handler handler1 = new Handler();
+        handler1.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                songProgress.setProgress((int) player.getCurrentPosition() / 1000);
+                long minuteStart = player.getCurrentPosition() / 60000;
+                long secondStart = (player.getCurrentPosition() / 1000) % 60;
+                long minuteEnd = (player.getDuration() - player.getCurrentPosition()) / 60000;
+                long secondEnd = ((player.getDuration() - player.getCurrentPosition()) / 1000) % 60;
+                setProgressStartTime(minuteStart, secondStart);
+                setProgressEndTime(minuteEnd, secondEnd);
+                handler1.post(this);
+            }
+        }, 1000);
     }
 
-    public void setUpMusicPlayerUI(){
+    //Set progress timeline
+    public void setProgressStartTime(long minute, long second) {
+        String minuteStr;
+        String secondStr;
+        if (minute < 10) minuteStr = "0" + minute;
+        else minuteStr = "" + minute;
+        if (second < 10) secondStr = "0" + second;
+        else secondStr = "" + second;
+        timeStartProgress.setText(minuteStr + ":" + secondStr);
+    }
+
+    public void setProgressEndTime(long minute, long second) {
+        String minuteStr;
+        String secondStr;
+        if (minute < 10) minuteStr = "0" + minute;
+        else minuteStr = "" + minute;
+        if (second < 10) secondStr = "0" + second;
+        else secondStr = "" + second;
+        timeEndProgress.setText(minuteStr + ":" + secondStr);
+    }
+
+    //Find song using its id
+    public Track findSong(String id){
+        for(int i = 0; i < items.size(); i++){
+            if(Objects.equals(id, items.get(i).getId())){
+                return items.get(i);
+            }
+        }
+        return null;
+    }
+
+    //Set up UI for player
+    public void setUpMusicPlayerUI() {
         //Bind view's ids
         uiLayout = findViewById(R.id.ui_layout);
         uiBackBtn = findViewById(R.id.ui_back_btn);
@@ -330,9 +449,43 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void getSongData(SongItem song){
-        Glide.with(this).load(song.getImageUrl()).centerCrop().into(songImage);
-        songName.setText(song.getTitle());
-        artistName.setText(song.getPublisher().getArtist());
+    //Load song's image, name, artist
+    public void getSongData(Track song) {
+        Glide.with(this).load(song.getAlbum().getImages()[0].getUrl()).centerCrop().into(songImage);
+        songName.setText(song.getName());
+        artistName.setText(song.getArtists()[0].getName());
     }
+
+    //Player's button onClick methods
+    public void playBtn(View view) {
+        if (!player.isPlaying()) {
+            player.setPlayWhenReady(true);
+            player.getPlaybackState();
+        } else {
+            player.setPlayWhenReady(false);
+            player.getPlaybackState();
+        }
+    }
+
+    public void replayBtn(View view) {
+        if (player.getCurrentPosition() >= 10000)
+            player.seekTo(player.getCurrentPosition() - 10000);
+        else player.seekTo(0);
+    }
+
+    public void forwardBtn(View view) {
+        if (player.getCurrentPosition() < player.getDuration() - 10000)
+            player.seekTo(player.getCurrentPosition() + 10000);
+    }
+
+    public void skipPreviousBtn(View view) {
+        if (player.hasPreviousMediaItem()) player.seekToPreviousMediaItem();
+        else player.seekTo(0);
+    }
+
+    public void skipNextBtn(View view) {
+        if (player.hasNextMediaItem()) player.seekToNextMediaItem();
+        else player.seekTo(player.getDuration());
+    }
+
 }

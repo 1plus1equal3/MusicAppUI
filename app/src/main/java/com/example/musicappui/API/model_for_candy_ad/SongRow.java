@@ -1,17 +1,19 @@
 package com.example.musicappui.API.model_for_candy_ad;
 
+import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track;
+
 import java.util.List;
 
 public class SongRow {
-    private long id;
-    private String title;
-    private List<SongItem> songItems;
-    private SongRowViewType viewType;
+    private final long id;
+    private final String title;
+    private final List<com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track> tracks;
+    private final SongRowViewType viewType;
 
-    public SongRow(long id, String title, List<SongItem> songItems, SongRowViewType viewType) {
+    public SongRow(long id, String title, List<Track> tracks, SongRowViewType viewType) {
         this.id = id;
         this.title = title;
-        this.songItems = songItems;
+        this.tracks = tracks;
         this.viewType = viewType;
     }
 
@@ -27,8 +29,8 @@ public class SongRow {
         return viewType;
     }
 
-    public List<SongItem> getSongItems() {
-        return songItems;
+    public List<Track> getTracks() {
+        return tracks;
     }
 }
 

@@ -1,11 +1,11 @@
-package com.example.musicappui.API.model_for_spotify_songs;
+package com.example.musicappui.API.ApiSpotify.model_for_spotify_songs;
 
 public class Artist {
-    private long id;
+    private String id;
     private String name;
     private String uri;
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 

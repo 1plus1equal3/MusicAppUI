@@ -16,7 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.musicappui.API.model_for_candy_ad.SongItem;
+import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track;
 import com.example.musicappui.API.model_for_candy_ad.SongRow;
 import com.example.musicappui.API.model_for_candy_ad.SongRowViewType;
 import com.example.musicappui.CallbackInterface.HomeFragCallback;
@@ -137,7 +137,7 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
 
             public void bindCandyAd(SongRow row) {
                 candyBrand.setText(row.getTitle());
-                candyFavorAdapter = new CandyFavorAdapter_1(row.getSongItems());
+                candyFavorAdapter = new CandyFavorAdapter_1(row.getTracks());
                 candyAd.setAdapter(candyFavorAdapter);
             }
         }
@@ -159,7 +159,7 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
 
             public void bindCandyAd(SongRow row) {
                 candyBrand.setText(row.getTitle());
-                candyFavorAdapter = new CandyFavorAdapter_0(row.getSongItems());
+                candyFavorAdapter = new CandyFavorAdapter_0(row.getTracks());
                 candyAd.setAdapter(candyFavorAdapter);
             }
         }
@@ -169,9 +169,9 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
 //Music items can be played
     class CandyFavorAdapter_0 extends RecyclerView.Adapter<CandyFavorAdapter_0.ViewHolder> {
 
-        private final List<SongItem> candies;
+        private final List<com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track> candies;
 
-        public CandyFavorAdapter_0(List<SongItem> candies) {
+        public CandyFavorAdapter_0(List<com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track> candies) {
             this.candies = candies;
         }
 
@@ -185,14 +185,14 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
         @Override
         public void onBindViewHolder(@NonNull CandyFavorAdapter_0.ViewHolder holder, int position) {
             Log.d("Image: ", "Loaded");
-            Glide.with(holder.itemView.getContext()).load(candies.get(position).getImageUrl()).circleCrop().into(holder.candyShell);
-            holder.candyShellDescription.setText(candies.get(position).getTitle());
+            Glide.with(holder.itemView.getContext()).load(candies.get(position).getAlbum().getImages()[0].getUrl()).circleCrop().into(holder.candyShell);
+            holder.candyShellDescription.setText(candies.get(position).getName());
             //Prepare song here
             holder.candyItem.setOnClickListener(v -> {
                 Log.e("Id", String.valueOf(candies.get(position).getId()));
                 if(activity!=null) {
                     Handler handler = new Handler();
-                    handler.postDelayed(() -> activity.prepareSongFromUrl(candies.get(position).getId(), candies.get(position)), 1500);
+                    handler.postDelayed(() -> activity.prepareSongFromUrl(candies.get(position)), 1500);
                 }
             });
 
@@ -227,9 +227,9 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
     //Sub RecyclerView Adapter for Rectangle Images
     static class CandyFavorAdapter_1 extends RecyclerView.Adapter<CandyFavorAdapter_1.ViewHolder> {
 
-        private final List<SongItem> candies;
+        private final List<com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track> candies;
 
-        public CandyFavorAdapter_1(List<SongItem> candies) {
+        public CandyFavorAdapter_1(List<Track> candies) {
             this.candies = candies;
         }
 
@@ -243,8 +243,8 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
         @Override
         public void onBindViewHolder(@NonNull CandyFavorAdapter_1.ViewHolder holder, int position) {
             Log.d("Image: ", "Loaded");
-            Glide.with(holder.itemView.getContext()).load(candies.get(position).getImageUrl()).centerCrop().into(holder.candyShell);
-            holder.candyShellDescription.setText(candies.get(position).getTitle());
+            Glide.with(holder.itemView.getContext()).load(candies.get(position).getAlbum().getImages()[0].getUrl()).centerCrop().into(holder.candyShell);
+            holder.candyShellDescription.setText(candies.get(position).getName());
         }
 
         @Override

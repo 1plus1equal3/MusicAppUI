@@ -1,4 +1,4 @@
-package com.example.musicappui.API.model_for_spotify_songs;
+package com.example.musicappui.API.ApiSpotify.model_for_spotify_songs;
 
 public class Items {
     private Track track;

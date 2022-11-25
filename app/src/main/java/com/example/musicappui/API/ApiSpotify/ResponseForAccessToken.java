@@ -1,4 +1,4 @@
-package com.example.musicappui.API;
+package com.example.musicappui.API.ApiSpotify;
 
 public class ResponseForAccessToken {
     private final String access_token;

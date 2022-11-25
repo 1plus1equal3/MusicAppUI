@@ -2,7 +2,7 @@ package com.example.musicappui.API.model_for_candy_ad;
 
 import java.io.Serializable;
 
-public class SongItem implements Serializable {
+public class Track implements Serializable {
     private long id;
     private String title;
     private String permalink;
@@ -12,16 +12,16 @@ public class SongItem implements Serializable {
     private String durationText;
 
 
-    public SongItem() {
+    public Track() {
     }
 
 
-    public SongItem(String title, String artworkUrl) {
+    public Track(String title, String artworkUrl) {
         this.title = title;
         this.artworkUrl = artworkUrl;
     }
 
-    public SongItem(String title, String artworkUrl, Publisher publisher, String durationText, long id) {
+    public Track(String title, String artworkUrl, Publisher publisher, String durationText, long id) {
         this.title = title;
         this.artworkUrl = artworkUrl;
         this.publisher = publisher;
@@ -29,7 +29,7 @@ public class SongItem implements Serializable {
         this.id = id;
     }
 
-    public SongItem(String title, String artworkUrl, Publisher publisher, String durationText, long id, long durationMs) {
+    public Track(String title, String artworkUrl, Publisher publisher, String durationText, long id, long durationMs) {
         this.title = title;
         this.artworkUrl = artworkUrl;
         this.publisher = publisher;

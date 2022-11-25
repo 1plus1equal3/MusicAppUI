@@ -20,10 +20,10 @@
         tools:ignore="ContentDescription" />
 
     <ScrollView
-        app:layout_constraintTop_toBottomOf="@id/ui_back_btn"
-        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="match_parent"
-        android:layout_height="0dp">
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ui_back_btn">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -102,8 +102,8 @@
                     android:layout_height="9dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="12dp"
-                    android:max="100"
                     android:layout_marginEnd="16dp"
+                    android:max="100"
                     android:progressTint="@color/ic_launcher_background"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -146,6 +146,7 @@
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:background="@drawable/ic_baseline_play_circle_24"
+                    android:onClick="playBtn"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/forward_btn"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -158,6 +159,7 @@
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:background="@drawable/ic_baseline_replay_10_24"
+                    android:onClick="replayBtn"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/play_pause_btn"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -170,6 +172,7 @@
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:background="@drawable/ic_baseline_forward_10_24"
+                    android:onClick="forwardBtn"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/skip_next_btn"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -182,6 +185,7 @@
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:background="@drawable/ic_baseline_skip_previous_24"
+                    android:onClick="skipPreviousBtn"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/back_btn"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -194,6 +198,7 @@
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:background="@drawable/ic_baseline_skip_next_24"
+                    android:onClick="skipNextBtn"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -205,8 +210,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

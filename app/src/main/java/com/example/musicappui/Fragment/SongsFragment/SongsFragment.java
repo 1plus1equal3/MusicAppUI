@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.musicappui.API.model_for_candy_ad.SongItem;
+import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track;
 import com.example.musicappui.CallbackInterface.SongsFragCallback;
 import com.example.musicappui.MainActivity;
 import com.example.musicappui.R;
@@ -28,7 +28,7 @@ public class SongsFragment extends Fragment implements SongsFragCallback {
 
     Spinner sortCherry;
     TextView cherryNum;
-    ArrayList<SongItem> cherries;
+    ArrayList<com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track> cherries;
     private RecyclerView cherryList;
 
     //Fragment methods
@@ -65,9 +65,9 @@ public class SongsFragment extends Fragment implements SongsFragCallback {
     }
 
     @Override
-    public void onAdapterSetUp(ArrayList<SongItem> items) {
+    public void onAdapterSetUp(ArrayList<com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track> items) {
         cherries = items;
-        Log.e("SongFragment: ", cherries.get(0).getPublisher().getArtist());
+        Log.e("SongFragment: ", cherries.get(0).getArtists()[0].getName());
         CherryListAdapter cherryListAdapter = new CherryListAdapter(cherryList.getContext(), cherries);
         cherryList.setAdapter(cherryListAdapter);
         cherryList.setLayoutManager(new LinearLayoutManager(cherryList.getContext()));
@@ -78,9 +78,9 @@ public class SongsFragment extends Fragment implements SongsFragCallback {
 class CherryListAdapter extends RecyclerView.Adapter<CherryListAdapter.CherryViewHolder> {
 
     Context context;
-    ArrayList<SongItem> cherries;
+    ArrayList<com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track> cherries;
 
-    public CherryListAdapter(Context context, ArrayList<SongItem> cherries) {
+    public CherryListAdapter(Context context, ArrayList<Track> cherries) {
         this.context = context;
         this.cherries = cherries;
     }
@@ -93,10 +93,10 @@ class CherryListAdapter extends RecyclerView.Adapter<CherryListAdapter.CherryVie
 
     @Override
     public void onBindViewHolder(@NonNull CherryListAdapter.CherryViewHolder holder, int position) {
-        Glide.with(context).load(cherries.get(position).getImageUrl()).into(holder.cherryImage);
-        holder.cherryName.setText(cherries.get(position).getTitle());
-        holder.cherryArtist.setText(cherries.get(position).getPublisher().getArtist());
-        holder.cherryDuration.setText(cherries.get(position).getDurationText() + " ms");
+        Glide.with(context).load(cherries.get(position).getAlbum().getImages()[0].getUrl()).into(holder.cherryImage);
+        holder.cherryName.setText(cherries.get(position).getName());
+        holder.cherryArtist.setText(cherries.get(position).getArtists()[0].getName());
+        holder.cherryDuration.setText(cherries.get(position).getDuration_ms() + " ms");
     }
 
     @Override
