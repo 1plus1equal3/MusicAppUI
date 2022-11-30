@@ -1,6 +1,8 @@
 package com.example.musicappui.API.ApiSpotify.model_for_spotify_songs;
 
-public class Track {
+import com.example.musicappui.API.model_for_candy_ad.Songs;
+
+public class Track extends Songs {
     private final long duration_ms;
     private final String id;
     private final String name;

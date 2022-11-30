@@ -31,10 +31,13 @@ import com.bumptech.glide.Glide;
 import com.example.musicappui.API.ApiSpotify.ResponseForAccessToken;
 import com.example.musicappui.API.ApiSpotify.SpotifyClient_0;
 import com.example.musicappui.API.ApiSpotify.SpotifyClient_1;
+import com.example.musicappui.API.ApiSpotify.model_for_spotify_artists.Artists;
+import com.example.musicappui.API.ApiSpotify.model_for_spotify_artists.ArtistsResponse;
 import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.RecommendSongs;
 import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track;
 import com.example.musicappui.API.model_for_candy_ad.SongRow;
 import com.example.musicappui.API.model_for_candy_ad.SongRowViewType;
+import com.example.musicappui.API.model_for_candy_ad.Songs;
 import com.example.musicappui.CallbackInterface.ArtistsFragCallback;
 import com.example.musicappui.CallbackInterface.HomeFragCallback;
 import com.example.musicappui.CallbackInterface.SongsFragCallback;
@@ -63,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
     ExoPlayer player;
     PlayerControlView controller;
     ArrayList<Track> items = new ArrayList<>();
+    ArrayList<String> ids = new ArrayList<>();
+    ArrayList<Artists> artists = new ArrayList<>();
     //Response for access token
     ResponseForAccessToken accessTokenResponse;
 
@@ -224,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void APICall() {
         progressBar.setVisibility(View.VISIBLE);
-        ArrayList<Track> items = new ArrayList<>();
+        ArrayList<Songs> items = new ArrayList<>();
         Call<RecommendSongs> call = SpotifyClient_1.getInstance(this).getApiSpotify().getTracks(20);
         call.enqueue(new Callback<RecommendSongs>() {
             @Override
@@ -246,13 +251,15 @@ public class MainActivity extends AppCompatActivity {
                                 track.getPreview_url(),
                                 track.getAlbum()
                         ));
-                        Log.d("Song: ", items.get(i).getName());
+                        ids.add(i, track.getId());
+                        Log.d("Song: ", ((Track) items.get(i)).getName());
                     }
                 }
 
                 List<SongRow> rows = new ArrayList<>();
                 rows.add(new SongRow(0, "Favorites", items, SongRowViewType.CIRCLE));
-                rows.add(new SongRow(1, "Artists", items, SongRowViewType.RECTANGLE));
+                APICallForArtist();
+                rows.add(new SongRow(1, "Artists", artists, SongRowViewType.RECTANGLE));
                 rows.add(new SongRow(2, "Albums", items, SongRowViewType.RECTANGLE));
                 rows.add(new SongRow(3, "Saved", items, SongRowViewType.CIRCLE));
 
@@ -275,37 +282,28 @@ public class MainActivity extends AppCompatActivity {
     //API call for artists and artist's images
     public void APICallForArtist() {
         Log.e("Artists: ", "Get some artists");
-        items = new ArrayList<>();
-        Call<RecommendSongs> call = SpotifyClient_1.getInstance(this).getApiSpotify().getTracks(20);
-        call.enqueue(new Callback<RecommendSongs>() {
+        String idsStr = ids.get(0);
+        for(int i = 1; i < ids.size(); i++){
+            idsStr = "," + ids.get(i);
+        }
+        Call<ArtistsResponse> call = SpotifyClient_1.getInstance(this).getApiSpotify().getArtists(idsStr);
+        call.enqueue(new Callback<ArtistsResponse>() {
             @Override
-            public void onResponse(@NonNull Call<RecommendSongs> call, @NonNull Response<RecommendSongs> response) {
-                if (!response.isSuccessful()) return;
-                RecommendSongs body = response.body();
-                Log.d("", "onResponse: " + body);
-                //Add all song id from api to String[] UrlImage array!
-                for (int i = 0; i < 20; i++) {
-                    if (body != null) {
-                        Track track = body.getItems()[i].getTrack();
-                        items.add(i, new Track(
-                                track.getDuration_ms(),
-                                track.getId(),
-                                track.getName(),
-                                track.getUri(),
-                                track.getArtists(),
-                                track.getPreview_url(),
-                                track.getAlbum()
-                        ));
-                        Log.d("Song: ", items.get(i).getName());
-                    }
+            public void onResponse(@NonNull Call<ArtistsResponse> call, @NonNull Response<ArtistsResponse> response) {
+                if(!response.isSuccessful()) return;
+                ArtistsResponse artistsResponse = response.body();
+                if(artistsResponse==null) return;
+                for(int i = 0; i < artistsResponse.getArtists().length; i++){
+                    artists.add(1, new Artists(
+                            artistsResponse.getArtists()[i].getId(),
+                            artistsResponse.getArtists()[i].getImages(),
+                            artistsResponse.getArtists()[i].getName()
+                            ));
                 }
-                artistsFragCallback.cakes(items.size());
-                artistsFragCallback.onAdapterSetUp(items);
-
             }
 
             @Override
-            public void onFailure(@NonNull Call<RecommendSongs> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<ArtistsResponse> call, @NonNull Throwable t) {
                 Log.e("Fail call: ", t.getMessage());
             }
         });

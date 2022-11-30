@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.musicappui.API.ApiSpotify.model_for_spotify_artists.Artists;
 import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track;
 import com.example.musicappui.API.model_for_candy_ad.SongRow;
 import com.example.musicappui.API.model_for_candy_ad.SongRowViewType;
@@ -88,18 +89,18 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             if (SongRowViewType.values()[viewType] == SongRowViewType.CIRCLE) {
-                return new CircleViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.candy_circle_layout, parent, false));
+                return new ArtistsViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.candy_circle_layout, parent, false));
             } else {
-                return new RowViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.candy_layout, parent, false));
+                return new FavoritesViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.candy_layout, parent, false));
             }
         }
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-            if (holder instanceof RowViewHolder) {
-                ((RowViewHolder) holder).bindCandyAd(candies.get(position));
-            } else if (holder instanceof CircleViewHolder) {
-                ((CircleViewHolder) holder).bindCandyAd(candies.get(position));
+            if (holder instanceof FavoritesViewHolder) {
+                ((FavoritesViewHolder) holder).bindCandyAd(candies.get(position));
+            } else if (holder instanceof ArtistsViewHolder) {
+                ((ArtistsViewHolder) holder).bindCandyAd(candies.get(position));
             }
         }
 
@@ -120,15 +121,16 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
             notifyDataSetChanged();
         }
 
-        //RowViewHolder for rectangle shape image
-        class RowViewHolder extends RecyclerView.ViewHolder {
+        //ViewHolder for favourite songs
+        class FavoritesViewHolder extends RecyclerView.ViewHolder {
 
             private final TextView candyBrand;
             private final TextView seeAll;
             private final RecyclerView candyAd;
+
             CandyFavorAdapter_1 candyFavorAdapter;
 
-            public RowViewHolder(@NonNull View itemView) {
+            public FavoritesViewHolder(@NonNull View itemView) {
                 super(itemView);
                 candyBrand = itemView.findViewById(R.id.candy_brand);
                 candyAd = itemView.findViewById(R.id.recyclerView);
@@ -137,20 +139,66 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
 
             public void bindCandyAd(SongRow row) {
                 candyBrand.setText(row.getTitle());
-                candyFavorAdapter = new CandyFavorAdapter_1(row.getTracks());
+                List<Track> list = (List<Track>) (List<?>) row.getTracks();
+                candyFavorAdapter = new CandyFavorAdapter_1(list);
                 candyAd.setAdapter(candyFavorAdapter);
             }
         }
 
-        //ViewHolder for Circle shape image
-         class CircleViewHolder extends RecyclerView.ViewHolder {
+        //ViewHolder for artists
+         class ArtistsViewHolder extends RecyclerView.ViewHolder {
 
             private final TextView candyBrand;
             private final TextView seeAll;
             private final RecyclerView candyAd;
             CandyFavorAdapter_0 candyFavorAdapter;
 
-            public CircleViewHolder(@NonNull View itemView) {
+            public ArtistsViewHolder(@NonNull View itemView) {
+                super(itemView);
+                candyBrand = itemView.findViewById(R.id.candy_brand);
+                candyAd = itemView.findViewById(R.id.recyclerView);
+                seeAll = itemView.findViewById(R.id.see_all);
+            }
+
+            public void bindCandyAd(SongRow row) {
+                candyBrand.setText(row.getTitle());
+                List<Artists> list = (List<Artists>) (List<?>) row.getTracks();
+                candyFavorAdapter = new CandyFavorAdapter_0(list);
+                candyAd.setAdapter(candyFavorAdapter);
+            }
+        }
+
+        //ViewHolder for albums
+        class AlbumsViewHolder extends RecyclerView.ViewHolder {
+
+            private final TextView candyBrand;
+            private final TextView seeAll;
+            private final RecyclerView candyAd;
+            CandyFavorAdapter_0 candyFavorAdapter;
+
+            public AlbumsViewHolder(@NonNull View itemView) {
+                super(itemView);
+                candyBrand = itemView.findViewById(R.id.candy_brand);
+                candyAd = itemView.findViewById(R.id.recyclerView);
+                seeAll = itemView.findViewById(R.id.see_all);
+            }
+
+            public void bindCandyAd(SongRow row) {
+                candyBrand.setText(row.getTitle());
+                candyFavorAdapter = new CandyFavorAdapter_0(row.getTracks());
+                candyAd.setAdapter(candyFavorAdapter);
+            }
+        }
+
+        //ViewHolder for saved songs
+        class SavedSongsViewHolder extends RecyclerView.ViewHolder {
+
+            private final TextView candyBrand;
+            private final TextView seeAll;
+            private final RecyclerView candyAd;
+            CandyFavorAdapter_0 candyFavorAdapter;
+
+            public SavedSongsViewHolder(@NonNull View itemView) {
                 super(itemView);
                 candyBrand = itemView.findViewById(R.id.candy_brand);
                 candyAd = itemView.findViewById(R.id.recyclerView);

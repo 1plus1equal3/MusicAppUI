@@ -7,10 +7,10 @@ import java.util.List;
 public class SongRow {
     private final long id;
     private final String title;
-    private final List<com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track> tracks;
+    private final List<Songs> tracks;
     private final SongRowViewType viewType;
 
-    public SongRow(long id, String title, List<Track> tracks, SongRowViewType viewType) {
+    public SongRow(long id, String title, List<Songs> tracks, SongRowViewType viewType) {
         this.id = id;
         this.title = title;
         this.tracks = tracks;
@@ -29,8 +29,9 @@ public class SongRow {
         return viewType;
     }
 
-    public List<Track> getTracks() {
+    public List<Songs> getTracks() {
         return tracks;
     }
+
 }
 

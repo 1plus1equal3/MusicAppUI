@@ -19,7 +19,7 @@ public class SpotifyClient_1 {
                 .addInterceptor(new Interceptor(context))
                 .build();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(ApiSpotify.BASE_URL_FOR_TRACKS)
+                .baseUrl(ApiSpotify.BASE_URL_FOR_OTHERS)
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(client)
                 .build();

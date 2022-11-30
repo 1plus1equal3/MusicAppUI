@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:hint="cake number"
         android:textColor="@color/white"
-        android:padding="20dp"
+        android:padding="15dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -26,7 +26,6 @@
         android:id="@+id/cake_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:padding="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cake_number" />
 
