@@ -24,7 +24,7 @@ import com.example.musicappui.R;
 
 import java.util.ArrayList;
 
-public class SongsFragment extends Fragment implements SongsFragCallback {
+/*public class SongsFragment extends Fragment implements SongsFragCallback {
 
     Spinner sortCherry;
     TextView cherryNum;
@@ -73,7 +73,7 @@ public class SongsFragment extends Fragment implements SongsFragCallback {
         cherryList.setLayoutManager(new LinearLayoutManager(cherryList.getContext()));
     }
 
-}
+}*/
 
 class CherryListAdapter extends RecyclerView.Adapter<CherryListAdapter.CherryViewHolder> {
 

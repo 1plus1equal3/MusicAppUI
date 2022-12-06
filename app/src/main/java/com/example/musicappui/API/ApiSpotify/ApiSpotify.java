@@ -1,5 +1,6 @@
 package com.example.musicappui.API.ApiSpotify;
 
+import com.example.musicappui.API.ApiSpotify.model_for_spotify_albums.AlbumsResponse;
 import com.example.musicappui.API.ApiSpotify.model_for_spotify_artists.ArtistsResponse;
 import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.RecommendSongs;
 import retrofit2.Call;
@@ -24,5 +25,8 @@ public interface ApiSpotify {
     Call<RecommendSongs> getTracks(@Query("limit") int limit);
 
     @GET("v1/artists")
-    Call<ArtistsResponse> getArtists(@Query("ids") String ids);
+    Call<ArtistsResponse> getArtists(@Query(value = "ids", encoded = true) String ids);
+
+    @GET("v1/albums")
+    Call<AlbumsResponse> getAlbums(@Query(value = "ids", encoded = true) String ids);
 }
