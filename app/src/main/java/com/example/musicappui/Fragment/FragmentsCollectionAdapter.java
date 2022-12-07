@@ -7,6 +7,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.musicappui.Fragment.ArtistsFragment.ArtistsFragment;
 import com.example.musicappui.Fragment.HomeFragment.HomeFragment;
+import com.example.musicappui.Fragment.SongsFragment.SongsFragment;
 
 public class FragmentsCollectionAdapter extends FragmentStateAdapter {
     public FragmentsCollectionAdapter(FragmentActivity fragmentActivity) {
@@ -20,7 +21,7 @@ public class FragmentsCollectionAdapter extends FragmentStateAdapter {
             case 0:
                 return new HomeFragment();
             case 1:
-                return new ArtistsFragment();
+                return new SongsFragment();
             case 2:
                 return new ArtistsFragment();
             case 3:

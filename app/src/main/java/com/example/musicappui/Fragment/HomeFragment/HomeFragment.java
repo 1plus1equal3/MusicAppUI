@@ -18,7 +18,6 @@ import com.bumptech.glide.Glide;
 import com.example.musicappui.API.ApiSpotify.model_for_spotify_albums.Albums;
 import com.example.musicappui.API.ApiSpotify.model_for_spotify_artists.Artists;
 import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track;
-import com.example.musicappui.API.model_for_candy_ad.SongRowViewType;
 import com.example.musicappui.CallbackInterface.HomeFragCallback;
 import com.example.musicappui.MainActivity;
 import com.example.musicappui.R;
@@ -44,8 +43,6 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
         activity = (MainActivity) getActivity();
         if (activity != null) {
             activity.setHomeFragAdapterSetUp(this);
-        }
-        if (activity != null) {
             player = activity.getPlayer();
             controller = activity.getController();
         }
@@ -129,7 +126,6 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
                     if (holder instanceof FavoritesViewHolder) {
                         ((FavoritesViewHolder) holder).bindCandyAd(tracks);
                     }
-
                     if (holder instanceof ArtistsViewHolder) {
                         ((ArtistsViewHolder) holder).bindCandyAd(artists);
                     }
@@ -286,6 +282,12 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
             Log.d("Image: ", "Loaded");
             Glide.with(holder.itemView.getContext()).load(candies.get(position).getAlbum().getImages()[0].getUrl()).centerCrop().into(holder.candyShell);
             holder.candyShellDescription.setText(candies.get(position).getName());
+            holder.candyItem.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ((MainActivity) holder.candyItem.getContext()).prepareSongFromUrl(candies.get(position));
+                }
+            });
         }
 
         @Override
@@ -301,9 +303,11 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
         public static class ViewHolder extends RecyclerView.ViewHolder {
             private final ImageView candyShell;
             private final TextView candyShellDescription;
+            private final LinearLayout candyItem;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
+                candyItem = itemView.findViewById(R.id.candy_item);
                 candyShell = itemView.findViewById(R.id.candy_shell);
                 candyShellDescription = itemView.findViewById(R.id.candy_shell_description);
             }
@@ -344,10 +348,6 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
             return candies.size();
         }
 
-        @Override
-        public int getItemViewType(int position) {
-            return super.getItemViewType(position);
-        }
 
         public static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -381,9 +381,9 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
         @Override
         public void onBindViewHolder(@NonNull CandyFavorAdapter_Albums.ViewHolder holder, int position) {
             Log.d("Image for album: ", "Loaded");
-            Glide.with(holder.itemView.getContext()).load(candies.get(position).getImages()[0].getUrl()).circleCrop().into(holder.candyShell);
+            Glide.with(holder.itemView.getContext()).load(candies.get(position).getImages()[0].getUrl()).centerCrop().into(holder.candyShell);
             holder.candyShellDescription.setText(candies.get(position).getName());
-            //Open a new Fragment showing tracks related to this artist
+            //Open a new Fragment showing tracks related to this album
             holder.candyItem.setOnClickListener(v -> {
 
             });
@@ -395,10 +395,6 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
             return candies.size();
         }
 
-        @Override
-        public int getItemViewType(int position) {
-            return super.getItemViewType(position);
-        }
 
         public static class ViewHolder extends RecyclerView.ViewHolder {
 

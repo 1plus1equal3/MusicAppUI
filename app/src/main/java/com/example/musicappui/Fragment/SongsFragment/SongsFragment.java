@@ -9,31 +9,31 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track;
+
 import com.example.musicappui.CallbackInterface.SongsFragCallback;
 import com.example.musicappui.MainActivity;
 import com.example.musicappui.R;
-
 import java.util.ArrayList;
 
-/*public class SongsFragment extends Fragment implements SongsFragCallback {
+public class SongsFragment extends Fragment implements SongsFragCallback {
 
     Spinner sortCherry;
     TextView cherryNum;
-    ArrayList<com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track> cherries;
-    private RecyclerView cherryList;
+    ArrayList<Track> cherries;
+    RecyclerView cherryList;
 
     //Fragment methods
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         MainActivity mainActivity = (MainActivity) getActivity();
         if (mainActivity != null) {
             mainActivity.setSongsFragCallback(this);
@@ -41,9 +41,8 @@ import java.util.ArrayList;
         super.onCreate(savedInstanceState);
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.songs_fragment, container, false);
         //Get view's ids
         cherryList = view.findViewById(R.id.cherry_list);
@@ -53,7 +52,7 @@ import java.util.ArrayList;
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -61,11 +60,11 @@ import java.util.ArrayList;
     //Get number of songs
     @Override
     public void cherries(int num) {
-        cherryNum.setText(num + " songs");
+        cherryNum.setText(num + "songs");
     }
 
     @Override
-    public void onAdapterSetUp(ArrayList<com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track> items) {
+    public void onAdapterSetUp(ArrayList<Track> items) {
         cherries = items;
         Log.e("SongFragment: ", cherries.get(0).getArtists()[0].getName());
         CherryListAdapter cherryListAdapter = new CherryListAdapter(cherryList.getContext(), cherries);
@@ -73,12 +72,12 @@ import java.util.ArrayList;
         cherryList.setLayoutManager(new LinearLayoutManager(cherryList.getContext()));
     }
 
-}*/
+}
 
 class CherryListAdapter extends RecyclerView.Adapter<CherryListAdapter.CherryViewHolder> {
 
     Context context;
-    ArrayList<com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track> cherries;
+    ArrayList<Track> cherries;
 
     public CherryListAdapter(Context context, ArrayList<Track> cherries) {
         this.context = context;
@@ -88,7 +87,7 @@ class CherryListAdapter extends RecyclerView.Adapter<CherryListAdapter.CherryVie
     @NonNull
     @Override
     public CherryListAdapter.CherryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new CherryViewHolder(LayoutInflater.from(context).inflate(R.layout.cherry_item, parent, false));
+        return new CherryViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cherry_item, parent, false));
     }
 
     @Override
@@ -97,6 +96,8 @@ class CherryListAdapter extends RecyclerView.Adapter<CherryListAdapter.CherryVie
         holder.cherryName.setText(cherries.get(position).getName());
         holder.cherryArtist.setText(cherries.get(position).getArtists()[0].getName());
         holder.cherryDuration.setText(cherries.get(position).getDuration_ms() + " ms");
+        holder.cherryItem.setOnClickListener(v -> ((MainActivity) holder.cherryItem.getContext()).prepareSongFromUrl(cherries.get(position)));
+
     }
 
     @Override
@@ -108,10 +109,12 @@ class CherryListAdapter extends RecyclerView.Adapter<CherryListAdapter.CherryVie
 
         ImageView cherryImage;
         TextView cherryName, cherryArtist, cherryDuration;
+        ConstraintLayout cherryItem;
 
         public CherryViewHolder(@NonNull View itemView) {
             super(itemView);
             //Get item's ids
+            cherryItem = itemView.findViewById(R.id.cherry_item);
             cherryImage = itemView.findViewById(R.id.cherry_image);
             cherryName = itemView.findViewById(R.id.cherry_name);
             cherryArtist = itemView.findViewById(R.id.cherry_artist);

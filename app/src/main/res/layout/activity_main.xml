@@ -56,7 +56,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:show_shuffle_button="false"
-        app:show_timeout="0"
         tools:visibility="visible" />
 
     <include

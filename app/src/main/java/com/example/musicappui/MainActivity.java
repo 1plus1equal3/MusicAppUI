@@ -65,24 +65,27 @@ public class MainActivity extends AppCompatActivity {
     PlayerControlView controller;
 
     //RecyclerView items for HomeFragment
-    ArrayList<Track> tracks = new ArrayList<>();
     ArrayList<String> artistIds = new ArrayList<>();
     ArrayList<String> albumIds = new ArrayList<>();
+    ArrayList<Track> tracks = new ArrayList<>();
     ArrayList<Artists> artists = new ArrayList<>();
     ArrayList<Albums> albums = new ArrayList<>();
+
     //Response for access token
     ResponseForAccessToken accessTokenResponse;
 
     //UI player Views
-    /*LinearLayout controllerClick;*/ ConstraintLayout uiLayout;
+    ConstraintLayout uiLayout;
     ImageButton uiBackBtn, play_pauseBtn, playerBackBtn, playerForwardBtn, playerSkipPreviousBtn, playerSkipNextBtn;
     ImageView songImage;
     TextView songName, artistName, timeStartProgress, timeEndProgress;
     ProgressBar songProgress;
+
     //Instance for Callback Interface
     HomeFragCallback homeFragCallback;
     SongsFragCallback songsFragCallback;
     ArtistsFragCallback artistsFragCallback;
+
     private ProgressBar progressBar;
 
     public ExoPlayer getPlayer() {
@@ -255,19 +258,13 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("Song: ", (tracks.get(i)).getName());
                     }
                 }
-
-                /*List<SongRow> rows = new ArrayList<>();
-                rows.add(new SongRow(0, "Favorites", tracks, SongRowViewType.CIRCLE));
-                APICallForArtist();
-                rows.add(new SongRow(1, "Artists", artists, SongRowViewType.RECTANGLE));
-                rows.add(new SongRow(2, "Albums", tracks, SongRowViewType.RECTANGLE));
-                rows.add(new SongRow(3, "Saved", tracks, SongRowViewType.CIRCLE));*/
                 progressBar.setVisibility(View.GONE);
+
+                Log.d("TrackSize", String.valueOf(tracks.size()));
+                songsFragCallback.cherries(tracks.size());
+                songsFragCallback.onAdapterSetUp(tracks);
+
                 APICallForArtist();
-                APICallForAlbum();
-                homeFragCallback.onAdapterSetUp(tracks, artists, albums);
-/*                songsFragCallback.cherries(tracks.size());
-                songsFragCallback.onAdapterSetUp(tracks);*/
 
             }
 
@@ -302,6 +299,11 @@ public class MainActivity extends AppCompatActivity {
                         ));
                         Log.d("Artist", artists.get(i).getName());
                 }
+
+                artistsFragCallback.cakes(artists.size());
+                artistsFragCallback.onAdapterSetUp(artists);
+
+                APICallForAlbum();
             }
 
             @Override
@@ -332,6 +334,8 @@ public class MainActivity extends AppCompatActivity {
                             albumsResponse.getAlbums()[i].getName()
                     ));
                 }
+                homeFragCallback.onAdapterSetUp(tracks, artists, albums);
+
             }
 
             @Override
@@ -357,18 +361,22 @@ public class MainActivity extends AppCompatActivity {
         MediaItem item;
         if (song.getPreview_url() == null) return;
         uri = Uri.parse(song.getPreview_url());
+        if(player.getCurrentMediaItem()!=null && song.getId().equals(player.getCurrentMediaItem().mediaId)){
+            controller.show();
+            return;
+        }
         item = new MediaItem.Builder()
                 .setUri(uri)
                 .setMediaId(song.getId())
                 .build();
         //Add MediaItem to Exoplayer player
-        if (player.getMediaItemCount() < 4) {
+        if (player.getMediaItemCount() >= 3) {
+            player.removeMediaItem(0);
             player.addMediaItem(item);
-            player.getMediaItemAt(player.getMediaItemCount() - 1);
+            player.seekTo(2, 0);
         } else {
-            player.removeMediaItem(player.getCurrentMediaItemIndex() - 3);
             player.addMediaItem(item);
-            player.getMediaItemAt(player.getMediaItemCount() - 1);
+            player.seekToNextMediaItem();
         }
         player.prepare();
         controller.show();
