@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Response for access token
     ResponseForAccessToken accessTokenResponse;
+    boolean checkAccessToken = false;
 
     //UI player Views
     ConstraintLayout uiLayout;
@@ -177,7 +178,17 @@ public class MainActivity extends AppCompatActivity {
 
         //Call API
         getAccessToken();
-
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(checkAccessToken){
+                    APICall();
+                } else{
+                    handler.post(this);
+                }
+            }
+        }, 1);
         //Set up UI player
         setUpMusicPlayerUI();
 
@@ -218,6 +229,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                getAccessToken();
+                handler.postDelayed(this, 1000*3600);
+            }
+        }, 1000*3600);
         super.onResume();
     }
 
@@ -239,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("token", accessTokenResponse.getAccess_token());
                     editor.putString("type", accessTokenResponse.getToken_type());
                     editor.apply();
-                    APICall();
+                    checkAccessToken = true;
                 }
             }
 
