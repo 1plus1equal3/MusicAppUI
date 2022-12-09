@@ -37,6 +37,7 @@ import com.example.musicappui.API.ApiSpotify.model_for_spotify_artists.Artists;
 import com.example.musicappui.API.ApiSpotify.model_for_spotify_artists.ArtistsResponse;
 import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.RecommendSongs;
 import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track;
+import com.example.musicappui.CallbackInterface.AlbumsFragCallback;
 import com.example.musicappui.CallbackInterface.ArtistsFragCallback;
 import com.example.musicappui.CallbackInterface.HomeFragCallback;
 import com.example.musicappui.CallbackInterface.SongsFragCallback;
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
     HomeFragCallback homeFragCallback;
     SongsFragCallback songsFragCallback;
     ArtistsFragCallback artistsFragCallback;
+    AlbumsFragCallback albumsFragCallback;
 
     private ProgressBar progressBar;
 
@@ -107,6 +109,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void setArtistsFragCallback(ArtistsFragCallback artistsFragCallback) {
         this.artistsFragCallback = artistsFragCallback;
+    }
+
+    public void setAlbumsFragCallback(AlbumsFragCallback albumsFragCallback) {
+        this.albumsFragCallback = albumsFragCallback;
     }
 
     //MainActivity methods
@@ -334,6 +340,8 @@ public class MainActivity extends AppCompatActivity {
                             albumsResponse.getAlbums()[i].getName()
                     ));
                 }
+                albumsFragCallback.cheeses(albums.size());
+                albumsFragCallback.onAdapterSetUp(albums);
                 homeFragCallback.onAdapterSetUp(tracks, artists, albums);
 
             }

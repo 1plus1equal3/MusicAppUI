@@ -60,7 +60,7 @@ public class SongsFragment extends Fragment implements SongsFragCallback {
     //Get number of songs
     @Override
     public void cherries(int num) {
-        cherryNum.setText(num + "songs");
+        cherryNum.setText(num + " songs");
     }
 
     @Override

@@ -5,17 +5,17 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/cake_number"
+        android:id="@+id/cheese_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="cake number"
-        android:textColor="@color/white"
+        android:hint="cheese number"
         android:padding="15dp"
+        android:textColor="@color/white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Spinner
-        android:id="@+id/sort_cake"
+        android:id="@+id/sort_cheese"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="20dp"
@@ -23,13 +23,13 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/cake_list"
+        android:id="@+id/cheese_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:padding="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cake_number" />
+        app:layout_constraintTop_toBottomOf="@id/cheese_number" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
