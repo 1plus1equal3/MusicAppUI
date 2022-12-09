@@ -1,5 +1,6 @@
 package com.example.musicappui.Fragment.HomeFragment;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,13 +30,12 @@ import java.util.List;
 
 public class HomeFragment extends Fragment implements HomeFragCallback {
 
-    //Array contains song's info
-    private RecyclerView candyList;
-    private CandyListAdapter candyListAdapter;
     ExoPlayer player;
     PlayerControlView controller;
     MainActivity activity;
-
+    //Array contains song's info
+    private RecyclerView candyList;
+    private CandyListAdapter candyListAdapter;
 
     //Fragment methods
     @Override
@@ -52,7 +52,7 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.home_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
         candyList = view.findViewById(R.id.candy_list);
         return view;
     }
@@ -60,7 +60,7 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        candyListAdapter = new CandyListAdapter();
+        candyListAdapter = new CandyListAdapter(activity);
         candyList.setAdapter(candyListAdapter);
     }
 
@@ -77,13 +77,12 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
 
         /* private List<Candy> candyList = new ArrayList<>();*/
         private final List<Track> tracks = new ArrayList<>();
-        private final List<Artists> artists =  new ArrayList<>();
-        private final List<Albums> albums =  new ArrayList<>();
-/*
-        private final ArrayList<SavedSongs> savedSongs =  new ArrayList<>();
-*/
+        private final List<Artists> artists = new ArrayList<>();
+        private final List<Albums> albums = new ArrayList<>();
+        private final MainActivity activity;
 
-        public CandyListAdapter() {
+        public CandyListAdapter(MainActivity activity) {
+            this.activity = activity;
         }
 
         @NonNull
@@ -99,7 +98,7 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
             } else
                 return null;*/
 
-            switch (viewType){
+            switch (viewType) {
                 case 0:
                     Log.d("aa0", "0");
                     return new FavoritesViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.candy_layout, parent, false));
@@ -112,7 +111,7 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
                 default:
                     return null;
             }
-            }
+        }
 
 
         @Override
@@ -123,16 +122,21 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
                 ((ArtistsViewHolder) holder).bindCandyAd(artists.get(position));
             }*/
 
-                    if (holder instanceof FavoritesViewHolder) {
-                        ((FavoritesViewHolder) holder).bindCandyAd(tracks);
-                    }
-                    if (holder instanceof ArtistsViewHolder) {
-                        ((ArtistsViewHolder) holder).bindCandyAd(artists);
-                    }
-                    if (holder instanceof AlbumsViewHolder) {
-                        ((AlbumsViewHolder) holder).bindCandyAd(albums);
-                    }
+            if (holder instanceof FavoritesViewHolder) {
+                ((FavoritesViewHolder) holder).bindCandyAd(tracks);
+                ((FavoritesViewHolder) holder).seeAll.setOnClickListener(v -> activity.seeAllClick(position));
             }
+            if (holder instanceof ArtistsViewHolder) {
+                ((ArtistsViewHolder) holder).bindCandyAd(artists);
+                ((ArtistsViewHolder) holder).seeAll.setOnClickListener(v -> activity.seeAllClick(position));
+            }
+            if (holder instanceof AlbumsViewHolder) {
+                ((AlbumsViewHolder) holder).bindCandyAd(albums);
+                ((AlbumsViewHolder) holder).seeAll.setOnClickListener(v -> activity.seeAllClick(position));
+            }
+
+
+        }
 
 
         @Override
@@ -187,6 +191,7 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
                 seeAll = itemView.findViewById(R.id.see_all);
             }
 
+            @SuppressLint("SetTextI18n")
             public void bindCandyAd(List<Track> tracks) {
                 candyBrand.setText("Favorites");
                 candyFavorAdapter = new CandyFavorAdapter_FavoriteSongs(tracks);
@@ -209,6 +214,7 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
                 seeAll = itemView.findViewById(R.id.see_all);
             }
 
+            @SuppressLint("SetTextI18n")
             public void bindCandyAd(List<Artists> artists) {
                 candyBrand.setText("Artists");
                 candyFavorAdapter = new CandyFavorAdapter_Artists(artists);
@@ -231,6 +237,7 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
                 seeAll = itemView.findViewById(R.id.see_all);
             }
 
+            @SuppressLint("SetTextI18n")
             public void bindCandyAd(List<Albums> albums) {
                 candyBrand.setText("Albums");
                 candyFavorAdapter = new CandyFavorAdapter_Albums(albums);
@@ -282,12 +289,7 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
             Log.d("Image: ", "Loaded");
             Glide.with(holder.itemView.getContext()).load(candies.get(position).getAlbum().getImages()[0].getUrl()).centerCrop().into(holder.candyShell);
             holder.candyShellDescription.setText(candies.get(position).getName());
-            holder.candyItem.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ((MainActivity) holder.candyItem.getContext()).prepareSongFromUrl(candies.get(position));
-                }
-            });
+            holder.candyItem.setOnClickListener(v -> ((MainActivity) holder.candyItem.getContext()).prepareSongFromUrl(candies.get(position), null));
         }
 
         @Override
@@ -368,9 +370,11 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
     //Sub RecyclerView Adapter for Albums
     static class CandyFavorAdapter_Albums extends RecyclerView.Adapter<CandyFavorAdapter_Albums.ViewHolder> {
         private final List<Albums> candies;
+
         public CandyFavorAdapter_Albums(List<Albums> candies) {
             this.candies = candies;
         }
+
         @NonNull
         @Override
         public CandyFavorAdapter_Albums.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -409,9 +413,6 @@ public class HomeFragment extends Fragment implements HomeFragCallback {
                 candyItem = itemView.findViewById(R.id.candy_item);
             }
         }
-
     }
-
-
 }
 

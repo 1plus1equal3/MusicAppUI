@@ -3,13 +3,20 @@ package com.example.musicappui.API.ApiSpotify.model_for_spotify_songs;
 import com.example.musicappui.API.model_for_candy_ad.Songs;
 
 public class Track extends Songs {
-    private final long duration_ms;
+    private long duration_ms;
     private final String id;
     private final String name;
-    private final String uri;
+    private String uri;
     private final Artist[] artists;
-    private final String preview_url;
+    private String preview_url;
     private final Album album;
+
+    public Track(String id, String name, Artist[] artists, Album album) {
+        this.id = id;
+        this.name = name;
+        this.artists = artists;
+        this.album = album;
+    }
 
     public Track(long duration_ms, String id, String name, String uri, Artist[] artists, String preview_url, Album album) {
         this.duration_ms = duration_ms;

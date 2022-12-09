@@ -1,5 +1,6 @@
 package com.example.musicappui.Fragment.AlbumsFragment;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,7 +40,7 @@ public class AlbumFragment extends Fragment implements AlbumsFragCallback {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.albums_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_albums, container, false);
         cheeseList = view.findViewById(R.id.cheese_list);
         sortCheese = view.findViewById(R.id.sort_cheese);
         cheeseNum = view.findViewById(R.id.cheese_number);
@@ -54,6 +55,7 @@ public class AlbumFragment extends Fragment implements AlbumsFragCallback {
 
 
     //Override Callback methods
+    @SuppressLint("SetTextI18n")
     @Override
     public void cheeses(int num) {
         cheeseNum.setText(num + " albums");

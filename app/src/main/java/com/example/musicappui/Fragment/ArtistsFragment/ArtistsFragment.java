@@ -1,5 +1,6 @@
 package com.example.musicappui.Fragment.ArtistsFragment;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,7 +40,7 @@ public class ArtistsFragment extends Fragment implements ArtistsFragCallback {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.artist_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_artist, container, false);
         cakeList = view.findViewById(R.id.cake_list);
         sortCake = view.findViewById(R.id.sort_cake);
         cakeNum = view.findViewById(R.id.cake_number);
@@ -53,6 +54,7 @@ public class ArtistsFragment extends Fragment implements ArtistsFragCallback {
     }
 
     //Override Callback methods
+    @SuppressLint("SetTextI18n")
     @Override
     public void cakes(int num) {
         cakeNum.setText(num + " artists");

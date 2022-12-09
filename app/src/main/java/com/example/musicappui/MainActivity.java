@@ -2,6 +2,7 @@ package com.example.musicappui;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -35,6 +36,9 @@ import com.example.musicappui.API.ApiSpotify.model_for_spotify_albums.Albums;
 import com.example.musicappui.API.ApiSpotify.model_for_spotify_albums.AlbumsResponse;
 import com.example.musicappui.API.ApiSpotify.model_for_spotify_artists.Artists;
 import com.example.musicappui.API.ApiSpotify.model_for_spotify_artists.ArtistsResponse;
+import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Album;
+import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Artist;
+import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Images;
 import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.RecommendSongs;
 import com.example.musicappui.API.ApiSpotify.model_for_spotify_songs.Track;
 import com.example.musicappui.CallbackInterface.AlbumsFragCallback;
@@ -42,6 +46,7 @@ import com.example.musicappui.CallbackInterface.ArtistsFragCallback;
 import com.example.musicappui.CallbackInterface.HomeFragCallback;
 import com.example.musicappui.CallbackInterface.SongsFragCallback;
 import com.example.musicappui.Fragment.FragmentsCollectionAdapter;
+import com.example.musicappui.Fragment.StorageFragment.SavedSong;
 import com.example.musicappui.Fragment.ZoomOutPageTransformer;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
@@ -115,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
         this.albumsFragCallback = albumsFragCallback;
     }
 
+
     //MainActivity methods
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -177,6 +183,12 @@ public class MainActivity extends AppCompatActivity {
 
         //Set up player and controller
         playerSetUp();
+
+    }
+
+    //Change tab onClick of seeAll Btn
+    public void seeAllClick(int position){
+        viewPager2.setCurrentItem(position + 1, true);
     }
 
     //Permission request result
@@ -285,12 +297,12 @@ public class MainActivity extends AppCompatActivity {
     //API call for artists and artist's images
     public void APICallForArtist() {
         Log.e("Artists: ", "Get some artists");
-        String idsStr = artistIds.get(0);
+        StringBuilder idsStr = new StringBuilder(artistIds.get(0));
         for (int i = 1; i < artistIds.size(); i++) {
-            idsStr = idsStr + "," + artistIds.get(i);
+            idsStr.append(",").append(artistIds.get(i));
         }
-        Log.e("idsStr", idsStr);
-        Call<ArtistsResponse> call = SpotifyClient_1.getInstance(this).getApiSpotify().getArtists(idsStr);
+        Log.e("idsStr", idsStr.toString());
+        Call<ArtistsResponse> call = SpotifyClient_1.getInstance(this).getApiSpotify().getArtists(idsStr.toString());
         call.enqueue(new Callback<ArtistsResponse>() {
             @Override
             public void onResponse(@NonNull Call<ArtistsResponse> call, @NonNull Response<ArtistsResponse> response) {
@@ -322,11 +334,11 @@ public class MainActivity extends AppCompatActivity {
     //API call for albums and album's images
     public void APICallForAlbum() {
         Log.e("Albums: ", "Get some albums");
-        String idsStr = albumIds.get(0);
+        StringBuilder idsStr = new StringBuilder(albumIds.get(0));
         for (int i = 1; i < albumIds.size(); i++) {
-            idsStr = idsStr + "," + albumIds.get(i);
+            idsStr.append(",").append(albumIds.get(i));
         }
-        Call<AlbumsResponse> call = SpotifyClient_1.getInstance(this).getApiSpotify().getAlbums(idsStr);
+        Call<AlbumsResponse> call = SpotifyClient_1.getInstance(this).getApiSpotify().getAlbums(idsStr.toString());
         call.enqueue(new Callback<AlbumsResponse>() {
             @Override
             public void onResponse(@NonNull Call<AlbumsResponse> call, @NonNull Response<AlbumsResponse> response) {
@@ -364,19 +376,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Prepare song for player
-    public void prepareSongFromUrl(Track song) {
+    public void prepareSongFromUrl(Track song, SavedSong savedSong) {
         Uri uri;
         MediaItem item;
-        if (song.getPreview_url() == null) return;
-        uri = Uri.parse(song.getPreview_url());
-        if(player.getCurrentMediaItem()!=null && song.getId().equals(player.getCurrentMediaItem().mediaId)){
-            controller.show();
+        if(song!=null) {
+            if (song.getPreview_url() == null) return;
+            uri = Uri.parse(song.getPreview_url());
+        } else if(savedSong != null) {
+            Artist artists = new Artist(savedSong.getArtist());
+            Images images = new Images("android.resource://" + getPackageName() + "/" + R.drawable.ic_baseline_music_note_24);
+            Log.e("##", "android.resource://" + getPackageName() + "/" + R.drawable.ic_baseline_music_note_24);
+            Album album = new Album(new Images[]{images});
+            song = new Track(savedSong.getId(), savedSong.getTitle(), new Artist[]{artists}, album);
+            tracks.add(song);
+            uri = Uri.parse(savedSong.getPath());
+        } else
             return;
-        }
+
         item = new MediaItem.Builder()
                 .setUri(uri)
                 .setMediaId(song.getId())
                 .build();
+
+        if (player.getCurrentMediaItem() != null && song.getId().equals(player.getCurrentMediaItem().mediaId)) {
+            controller.show();
+            return;
+        }
         //Add MediaItem to Exoplayer player
         if (player.getMediaItemCount() >= 3) {
             player.removeMediaItem(0);
@@ -440,6 +465,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Set progress timeline
+    @SuppressLint("SetTextI18n")
     public void setProgressStartTime(long minute, long second) {
         String minuteStr;
         String secondStr;
@@ -450,6 +476,7 @@ public class MainActivity extends AppCompatActivity {
         timeStartProgress.setText(minuteStr + ":" + secondStr);
     }
 
+    @SuppressLint("SetTextI18n")
     public void setProgressEndTime(long minute, long second) {
         String minuteStr;
         String secondStr;
@@ -496,7 +523,8 @@ public class MainActivity extends AppCompatActivity {
 
     //Load song's image, name, artist
     public void getSongData(Track song) {
-        Glide.with(this).load(song.getAlbum().getImages()[0].getUrl()).centerCrop().into(songImage);
+        Uri uri = Uri.parse(song.getAlbum().getImages()[0].getUrl());
+        Glide.with(this).load(uri).centerCrop().into(songImage);
         songName.setText(song.getName());
         artistName.setText(song.getArtists()[0].getName());
     }

@@ -1,5 +1,6 @@
 package com.example.musicappui.Fragment.SongsFragment;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -43,7 +44,7 @@ public class SongsFragment extends Fragment implements SongsFragCallback {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.songs_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_songs, container, false);
         //Get view's ids
         cherryList = view.findViewById(R.id.cherry_list);
         sortCherry = view.findViewById(R.id.sort_cherry);
@@ -58,6 +59,7 @@ public class SongsFragment extends Fragment implements SongsFragCallback {
 
     //CallBack override methods
     //Get number of songs
+    @SuppressLint("SetTextI18n")
     @Override
     public void cherries(int num) {
         cherryNum.setText(num + " songs");
@@ -90,13 +92,14 @@ class CherryListAdapter extends RecyclerView.Adapter<CherryListAdapter.CherryVie
         return new CherryViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cherry_item, parent, false));
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull CherryListAdapter.CherryViewHolder holder, int position) {
         Glide.with(context).load(cherries.get(position).getAlbum().getImages()[0].getUrl()).into(holder.cherryImage);
         holder.cherryName.setText(cherries.get(position).getName());
         holder.cherryArtist.setText(cherries.get(position).getArtists()[0].getName());
         holder.cherryDuration.setText(cherries.get(position).getDuration_ms() + " ms");
-        holder.cherryItem.setOnClickListener(v -> ((MainActivity) holder.cherryItem.getContext()).prepareSongFromUrl(cherries.get(position)));
+        holder.cherryItem.setOnClickListener(v -> ((MainActivity) holder.cherryItem.getContext()).prepareSongFromUrl(cherries.get(position), null));
 
     }
 
