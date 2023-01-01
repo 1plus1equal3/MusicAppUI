@@ -17,7 +17,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.musicappui.MainActivity;
-import com.example.musicappui.QuerySavedSongs;
 import com.example.musicappui.R;
 
 import java.util.ArrayList;

@@ -59,7 +59,6 @@ public class SongsFragment extends Fragment implements SongsFragCallback {
 
     //CallBack override methods
     //Get number of songs
-    @SuppressLint("SetTextI18n")
     @Override
     public void cherries(int num) {
         cherryNum.setText(num + " songs");

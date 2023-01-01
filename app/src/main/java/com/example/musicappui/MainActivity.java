@@ -3,6 +3,7 @@ package com.example.musicappui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -48,6 +49,8 @@ import com.example.musicappui.CallbackInterface.SongsFragCallback;
 import com.example.musicappui.Fragment.FragmentsCollectionAdapter;
 import com.example.musicappui.Fragment.StorageFragment.SavedSong;
 import com.example.musicappui.Fragment.ZoomOutPageTransformer;
+import com.example.musicappui.service.ExampleService;
+import com.example.musicappui.service.Receiver;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
@@ -67,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
     ViewPager2 viewPager2;
     TabLayout tabLayout;
     FragmentsCollectionAdapter adapter;
-    ExoPlayer player;
+    static ExoPlayer player;
     PlayerControlView controller;
 
     //RecyclerView items for HomeFragment
@@ -96,9 +99,11 @@ public class MainActivity extends AppCompatActivity {
 
     private ProgressBar progressBar;
 
-    public ExoPlayer getPlayer() {
+    public static ExoPlayer getPlayer() {
         return player;
     }
+
+
 
     public PlayerControlView getController() {
         return controller;
@@ -127,6 +132,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         //Check permissions
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
             Log.d("Permission", "Granted");
@@ -146,7 +153,9 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setTitle("  A music app");
         toolbar.setTitleMarginStart(10);
         toolbar.setLogo(R.mipmap.ic_launcher);
+/*
         setSupportActionBar(toolbar);
+*/
 
         //Set up viewPager
         adapter = new FragmentsCollectionAdapter(this);
@@ -296,10 +305,17 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 progressBar.setVisibility(View.GONE);
-
                 Log.d("TrackSize", String.valueOf(tracks.size()));
-                songsFragCallback.cherries(tracks.size());
-                songsFragCallback.onAdapterSetUp(tracks);
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(tracks!=null) {
+                            songsFragCallback.cherries(tracks.size());
+                            songsFragCallback.onAdapterSetUp(tracks);
+                        }else handler.postDelayed(this, 1);
+                    }
+                }, 1);
 
                 APICallForArtist();
 
@@ -388,6 +404,7 @@ public class MainActivity extends AppCompatActivity {
     public void playerSetUp() {
         player = new ExoPlayer.Builder(this).build();
         controller.setPlayer(player);
+        Receiver.getPlayer(player);
         controller.setOnClickListener(v -> {
             Log.e("UI player", "Clicked");
             uiLayout.setVisibility(View.VISIBLE);
@@ -431,7 +448,17 @@ public class MainActivity extends AppCompatActivity {
             player.seekToNextMediaItem();
         }
         player.prepare();
+        player.setPlayWhenReady(true);
         controller.show();
+
+        //Start service
+        Intent intent = new Intent(this, ExampleService.class);
+        Log.d("Service: ", "Started");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
 
         //Set up UI player layout
         getSongData(song);

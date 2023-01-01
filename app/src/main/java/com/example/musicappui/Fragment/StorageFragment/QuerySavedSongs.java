@@ -1,10 +1,9 @@
-package com.example.musicappui;
+package com.example.musicappui.Fragment.StorageFragment;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
 import android.util.Log;
-import com.example.musicappui.Fragment.StorageFragment.SavedSong;
 import java.util.ArrayList;
 
 public class QuerySavedSongs extends Thread{

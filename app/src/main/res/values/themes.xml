@@ -1,6 +1,6 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="Theme.MusicAppUI" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.MusicAppUI" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/red</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
